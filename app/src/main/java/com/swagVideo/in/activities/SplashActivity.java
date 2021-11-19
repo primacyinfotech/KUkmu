@@ -1,6 +1,5 @@
 package com.swagVideo.in.activities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -111,25 +110,8 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        // printKeyHash();
-        Log.e("KeyHash:", "0");
+       // printKeyHash();
 
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo(
-                    "com.swagvideo.in",
-                    PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                Log.e("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e("KeyHash:", "1");
-
-        } catch (NoSuchAlgorithmException e) {
-            Log.e("KeyHash:", "2");
-        }
-        printKeyHash();
         mModel = new ViewModelProvider(this).get(SplashActivityViewModel.class);
         ImageView logo = findViewById(R.id.logo);
         if (logo != null) {
@@ -153,41 +135,11 @@ public class SplashActivity extends AppCompatActivity {
                 0, gradientText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         SpannableStringBuilder sb = new SpannableStringBuilder();
         sb.append(gradientText);
-        // sb.append(" Normal Text");
+       // sb.append(" Normal Text");
         tvIndia.setText(sb);
 
     }
-    public static String printKeyHash(Activity context) {
-        PackageInfo packageInfo;
-        String key = null;
-        try {
-            // getting application package name, as defined in manifest
-            String packageName = context.getApplicationContext().getPackageName();
 
-            // Retriving package info
-            packageInfo =
-                    context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
-
-            Log.e("Package Name=", context.getApplicationContext().getPackageName());
-
-            for (Signature signature : packageInfo.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                key = new String(Base64.encode(md.digest(), 0));
-
-                // String key = new String(Base64.encodeBytes(md.digest()));
-                Log.e("Key Hash=", key);
-            }
-        } catch (PackageManager.NameNotFoundException e1) {
-            Log.e("Name not found", e1.toString());
-        } catch (NoSuchAlgorithmException e) {
-            Log.e("No such an algorithm", e.toString());
-        } catch (Exception e) {
-            Log.e("Exception", e.toString());
-        }
-
-        return key;
-    }
     private void printKeyHash()
     {
         try {
@@ -244,11 +196,9 @@ public class SplashActivity extends AppCompatActivity {
         if (getResources().getBoolean(R.bool.skip_intro_screen) || intro) {
             mModel.continued = true;
             continueWith();
-            System.out.println("LogView"+""+"After");
         } else {
             Prefs.putBoolean(SharedConstants.PREF_INTRO_SHOWN, true);
             startIntroActivity();
-            System.out.println("LogView"+""+"Before");
         }
     }
 

@@ -24,14 +24,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-                <ImageButton
-                    android:id="@+id/whatsapp"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_margin="5dp"
-                    android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/ic_whatsapp_colored" />
+
                 <ImageButton
                     android:id="@+id/facebook"
                     android:layout_width="50dp"
@@ -40,14 +33,7 @@
                     android:background="@android:color/transparent"
                     android:scaleType="fitCenter"
                     app:srcCompat="@drawable/ic_facebook_colored" />
-                <ImageButton
-                    android:id="@+id/whatsappstatus"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_margin="5dp"
-                    android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/whatsappstatus" />
+
                 <ImageButton
                     android:id="@+id/instagram"
                     android:layout_width="50dp"
@@ -66,7 +52,14 @@
                     android:scaleType="fitCenter"
                     app:srcCompat="@drawable/ic_twitter_colored" />
 
-
+                <ImageButton
+                    android:id="@+id/whatsapp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="@android:color/transparent"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/ic_whatsapp_colored" />
 
                 <ImageButton
                     android:id="@+id/other"

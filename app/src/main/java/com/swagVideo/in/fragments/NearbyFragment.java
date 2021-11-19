@@ -155,11 +155,12 @@ public class NearbyFragment extends Fragment {
         rv.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         viewAdapter = new RecyclerViewAdapter<>(getActivity(), R.layout.nearby_layout,nearBylIsts);
         viewAdapter.setMapper((viewHolder, source) -> {
+
+
             CircleImageView ivUser = (CircleImageView) viewHolder.getView(R.id.ivUser);
             TextView tvKm = (TextView) viewHolder.getView(R.id.tvKm);
-            TextView textId = (TextView) viewHolder.getView(R.id.textId);
-            TextView km = (TextView) viewHolder.getView(R.id.km);
             GIFView gifv = (GIFView) viewHolder.getView(R.id.gifv);
+
             gifv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -184,9 +185,9 @@ public class NearbyFragment extends Fragment {
                     getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.host, fr).addToBackStack("dd").commit();*/
                 }
             });
-            tvKm.setText(source.getKm()+" K");
-            km.setText(source.getLikesCount()+" K");
-            //textId.setText(source.getDescription()+"hh");
+
+            tvKm.setText(source.getKm()+" Km");
+
             Glide.with(this).load(source.getUser().photo).fitCenter().error(R.drawable.photo_placeholder).into(ivUser);
             Glide.with(this).load(source.getGif()).fitCenter().into(gifv);
 
@@ -319,7 +320,6 @@ public class NearbyFragment extends Fragment {
 
         REST api = retrofit.create(REST.class);
         try {
-            System.out.println("nearby"+SharedConstants.PREF_SERVER_TOKEN);
             Call<ResponseBody> call = api.getNearbyUsers("Bearer" + Prefs.getString(SharedConstants.PREF_SERVER_TOKEN,""),latf, longif);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
@@ -340,7 +340,6 @@ public class NearbyFragment extends Fragment {
                         myModelList = gson.fromJson(String.valueOf(jsonArray),ArrayList.class);
                         for (int i=0; i<jsonArray.length();i++){
                             JSONObject jsonObject1 = new JSONObject(jsonArray.getString(i));
-                            System.out.println("nearby"+jsonObject1);
                             double latU = Double.parseDouble(jsonObject1.getString("latitude"));
                             double lonU = Double.parseDouble(jsonObject1.getString("longitude"));
                             User user = new User();

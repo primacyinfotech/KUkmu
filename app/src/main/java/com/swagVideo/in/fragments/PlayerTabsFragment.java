@@ -71,6 +71,7 @@ public class PlayerTabsFragment extends Fragment {
         public PlayerTabPagerAdapter(@NonNull Fragment fragment) {
             super(fragment);
         }
+
         @NonNull
         @Override
         public Fragment createFragment(int position) {

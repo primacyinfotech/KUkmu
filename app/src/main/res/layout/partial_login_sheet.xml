@@ -143,17 +143,7 @@
                         android:layout_height="30dp"
                         android:layout_weight="1"
                         android:src="@drawable/facebook" />
-                    <com.facebook.login.widget.LoginButton
-                        android:visibility="gone"
-                        android:id="@+id/Fbtn_sign_in"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_marginLeft="5dp"
-                        android:layout_marginRight="5dp"
-                        android:textAlignment="center"
-                        android:textColor="#ffffff"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+
                     <ImageView
                         android:id="@+id/email"
                         android:layout_width="0dp"

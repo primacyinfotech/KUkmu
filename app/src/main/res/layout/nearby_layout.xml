@@ -54,7 +54,7 @@
                     app:placeholderImage="@drawable/photo_placeholder"
                     app:roundingBorderColor="@color/colorBadgeProfile"
                     app:roundingBorderWidth="2dp" />-->
-<!--                android:drawableLeft="@drawable/ic_like"-->
+                <!--                android:drawableLeft="@drawable/ic_like"-->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

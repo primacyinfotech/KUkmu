@@ -1,7 +1,7 @@
 package com.swagVideo.in.activities;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -63,18 +63,13 @@ import com.bumptech.glide.Glide;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -92,7 +87,6 @@ import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.gson.Gson;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.pixplicity.easyprefs.library.Prefs;
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
@@ -110,14 +104,11 @@ import com.thefinestartist.finestwebview.FinestWebView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -156,10 +147,13 @@ import pub.devrel.easypermissions.EasyPermissions;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity {
+
     private static final String EXTRA_REGISTERED = "registered";
     public static final String EXTRA_USER = "user";
     private static final String TAG = "MainActivity";
+
     private BannerAdProvider mAd;
     private CallbackManager mCallbackManager;
     private boolean mExitRequested;
@@ -170,26 +164,22 @@ public class MainActivity extends AppCompatActivity {
     private SliderView sliderView;
     private SliderAdapterExample adapter;
     private ArrayList<SliderItem> sliderItems = new ArrayList<>();
-    private static final String TAGG = MainActivity.class.getSimpleName();
-    private static final int RC_SIGN_IN = 007;
-    private GoogleApiClient mGoogleApiClient;
-    private ProgressDialog mProgressDialog;
-    private LoginButton Fbtn_sign_in;
-    private CallbackManager callbackManager;
-    ImageView facebook;
     private final InstallStateUpdatedListener mUpdateListener = state -> {
         if (state.installStatus() == InstallStatus.DOWNLOADED) {
             mUpdateManager.completeUpdate();
         }
     };
+
    public static TextView badge;
+
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(LocaleUtil.wrap(base));
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        Log.v(TAG, "Received request: " + requestCode + ", result: " + resultCode + ".");
+        Log.v(TAG, "Received request:" + requestCode + ", result: " + resultCode + ".");
         if (requestCode == SharedConstants.REQUEST_CODE_LOGIN_GOOGLE && resultCode == RESULT_OK && data != null) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
@@ -199,7 +189,6 @@ public class MainActivity extends AppCompatActivity {
             }
         } else if (requestCode == SharedConstants.REQUEST_CODE_LOGIN_PHONE && resultCode == RESULT_OK && data != null) {
             Token token = data.getParcelableExtra(PhoneLoginBaseActivity.EXTRA_TOKEN);
-          //  Token token = data.getParcelableExtra(Signin_Activity.EXTRA_TOKEN);
             updateLoginState(token);
         } else if (requestCode == SharedConstants.REQUEST_CODE_LOGIN_EMAIL && resultCode == RESULT_OK && data != null) {
             Token token = data.getParcelableExtra(EmailLoginActivity.EXTRA_TOKEN);
@@ -211,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
     }
+
     @Override
     public void onBackPressed() {
         try {
@@ -254,11 +244,13 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
+
     @Override
     @SuppressLint("NonConstantResourceId")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         try {
             if (getIntent().getExtras().getString("from").equals("nearby")) {
                 Bundle args = new Bundle();
@@ -290,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
         View loading = findViewById(R.id.loading);
         mModel.state.observe(this, state -> {
             content.setVisibility(state == LoadingState.LOADED ? View.VISIBLE : View.GONE);
-            loading .setVisibility(state == LoadingState.LOADING ? View.VISIBLE : View.GONE);
+            loading.setVisibility(state == LoadingState.LOADING ? View.VISIBLE : View.GONE);
         });
         badge = findViewById(R.id.notification_badge);
         mModel.notifications.observe(this, count -> {
@@ -314,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (registered && !getResources().getBoolean(R.bool.skip_suggestions_screen)) {
                     startActivity(new Intent(this, SuggestionsActivity.class));
+                    Log.e("Data","sentexists");
                 }
             }
         });
@@ -374,29 +367,26 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onCancel() {
+                        Log.e("Facebook", "0");
                         Log.w(TAG, "Login with Facebook was cancelled.");
-                        Log.e("TAGLOG","0");
                     }
 
                     @Override
                     public void onError(FacebookException error) {
                         Log.e(TAG, "Login with Facebook returned error.", error);
                         Toast.makeText(MainActivity.this, R.string.error_internet, Toast.LENGTH_SHORT).show();
-                        Log.e("TAGLOG","1");
-
                     }
 
                     @Override
                     public void onSuccess(LoginResult result) {
+                        Log.e("Facebook","1"+ String.valueOf(result));
                         loginWithFacebook(result);
                     }
                 });
         View facebook = sheet.findViewById(R.id.facebook);
-        Fbtn_sign_in = (LoginButton)findViewById(R.id.Fbtn_sign_in);
         facebook.setOnClickListener(view -> {
             if (acceptance && !terms2.isChecked()) {
                 Toast.makeText(this, R.string.message_accept_policies, Toast.LENGTH_SHORT).show();
-                Log.e("TAGLOG","2");
                 return;
             }
 
@@ -404,34 +394,11 @@ public class MainActivity extends AppCompatActivity {
             LoginManager lm = LoginManager.getInstance();
             try {
                 lm.logOut();
-                Log.e("TAGLOG","3");
             } catch (Exception ignore) {
             }
 
             lm.logInWithReadPermissions(
                     MainActivity.this, Collections.singletonList("email"));
-        });
-        Fbtn_sign_in.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //onFblogin();
-                if (acceptance && !terms2.isChecked()) {
-                    Toast.makeText(getApplicationContext(), R.string.message_accept_policies, Toast.LENGTH_SHORT).show();
-                    Log.e("TAGLOG","4");
-                    return;
-                }
-
-                bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                LoginManager lm = LoginManager.getInstance();
-                try {
-                    lm.logOut();
-                    Log.e("TAGLOG","5");
-                } catch (Exception ignore) {
-                }
-
-                lm.logInWithReadPermissions(
-                        MainActivity.this, Collections.singletonList("email"));
-            }
         });
         if (!getResources().getBoolean(R.bool.facebook_login_enabled)) {
             facebook.setVisibility(View.GONE);
@@ -450,22 +417,19 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.message_accept_policies, Toast.LENGTH_SHORT).show();
                 return;
             }
-
             bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
             startActivityForResult(
                     mSignInClient.getSignInIntent(), SharedConstants.REQUEST_CODE_LOGIN_GOOGLE);
         });
-        if (!getResources().getBoolean(R.bool.google_login_enabled)) { 
+        if (!getResources().getBoolean(R.bool.google_login_enabled)) {
             google.setVisibility(View.GONE);
         }
-
         View phone = sheet.findViewById(R.id.phone);
         phone.setOnClickListener(view -> {
             if (acceptance && !terms2.isChecked()) {
                 Toast.makeText(this, R.string.message_accept_policies, Toast.LENGTH_SHORT).show();
                 return;
             }
-
             bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
            /* if (TextUtils.equals(getString(R.string.sms_login_service), "firebase")) {
                 startActivityForResult(
@@ -538,8 +502,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(this, RecorderActivity.class));
                 }
             } else {
-              //  showLoginSheet();
-                startActivity(new Intent(this, RecorderActivity.class));
+                showLoginSheet();
             }
         });
         ImageButton notifications = findViewById(R.id.notifications);
@@ -771,26 +734,29 @@ public class MainActivity extends AppCompatActivity {
 
     private void loginWithFacebook(LoginResult result) {
         Log.d(TAG, "User logged in with Facebook ID " + result.getAccessToken().getUserId() + '.');
+        String token = result.getAccessToken().getToken();
+        Log.e("Facebook",token);
         REST rest = MainApplication.getContainer().get(REST.class);
         rest.loginFacebook(result.getAccessToken().getToken())
                 .enqueue(new Callback<Token>() {
-
                     @Override
                     public void onResponse(
                             @Nullable Call<Token> call,
                             @Nullable Response<Token> response
+
                     ) {
                         if (response != null && response.isSuccessful()) {
                             mHandler.post(() -> updateLoginState(response.body()));
+                            Log.e("Facebook","2"+response.body());
                         }
                     }
-
                     @Override
                     public void onFailure(
                             @Nullable Call<Token> call,
                             @Nullable Throwable t
                     ) {
                         Log.e(TAG, "Login request with Facebook has failed.", t);
+                        Log.e("Facebook","1");
                     }
                 });
     }
@@ -807,7 +773,7 @@ public class MainActivity extends AppCompatActivity {
         String id = account.getId();
         String email = account.getEmail();
         String picture = String.valueOf(account.getPhotoUrl());
-
+        Log.e("GMAILLOGIN",name+" "+token+" "+id+" "+email+" "+picture);
         REST rest = MainApplication.getContainer().get(REST.class);
         rest.loginGoogle(name, token, id, email, picture)
                 .enqueue(new Callback<Token>() {
@@ -819,6 +785,7 @@ public class MainActivity extends AppCompatActivity {
                     ) {
                         if (response != null && response.isSuccessful()) {
                             mHandler.post(() -> updateLoginState(response.body()));
+                            Log.e("GMAILLOGINresponse","Login");
                         }
                     }
 
@@ -908,7 +875,6 @@ public class MainActivity extends AppCompatActivity {
         REST rest = MainApplication.getContainer().get(REST.class);
         rest.notificationsUnread()
                 .enqueue(new Callback<UnreadNotifications>() {
-
                     @Override
                     public void onResponse(
                             @Nullable Call<UnreadNotifications> call,
@@ -922,7 +888,6 @@ public class MainActivity extends AppCompatActivity {
                             mModel.notifications.postValue(count);
                         }
                     }
-
                     @Override
                     public void onFailure(
                             @Nullable Call<UnreadNotifications> call,
@@ -938,7 +903,6 @@ public class MainActivity extends AppCompatActivity {
         REST rest = MainApplication.getContainer().get(REST.class);
         rest.profileShow()
                 .enqueue(new Callback<Wrappers.Single<User>>() {
-
                     @Override
                     public void onResponse(
                             @Nullable Call<Wrappers.Single<User>> call,
@@ -953,7 +917,6 @@ public class MainActivity extends AppCompatActivity {
                             mModel.state.postValue(LoadingState.LOADED);
                         }
                     }
-
                     @Override
                     public void onFailure(
                             @Nullable Call<Wrappers.Single<User>> call,
@@ -1193,6 +1156,7 @@ public class MainActivity extends AppCompatActivity {
                 banner.addView(ad);
             }
         }
+
         BottomSheetBehavior<View> bsb = BottomSheetBehavior.from(sheet);
         bsb.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
@@ -1575,79 +1539,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-    private void onFblogin() {
-        callbackManager = CallbackManager.Factory.create();
-        Fbtn_sign_in.setReadPermissions(Arrays.asList("public_profile", "email"));
-//        LoginManager.getInstance().registerCallback(callbackManager,
-//                new FacebookCallback<LoginResult>() {
-        Fbtn_sign_in.registerCallback(callbackManager, new FacebookCallback<com.facebook.login.LoginResult>() {
-            @Override
-            public void onSuccess(com.facebook.login.LoginResult loginResult) {
-
-                Log.e("TAG","Success"+"00");
-                System.out.println("Success");
-                GraphRequest request = GraphRequest.newMeRequest(
-                        loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
-                            @Override
-                            public void onCompleted(JSONObject json, GraphResponse response) {
-                                if (response.getError() != null) {
-                                    System.out.println("ERROR");
-                                    Log.e("TAG","Success"+"0");
-                                } else {
-
-                                    Log.e("TAG","Success"+"1");
-                                    System.out.println("Success");
-                                    try {
-                                        String jsonresult = String.valueOf(json);
-                                        System.out.println("TAG"+jsonresult+"DATA");
-                                        String facebookID = json.getString("id");
-                                        String name = json.getString("name");
-                                        String email = json.getString("email");
-                                        //String gender = json.getString("gender");
-                                        String token = loginResult.getAccessToken().getToken();
-                                        String applicationId = loginResult.getAccessToken().getApplicationId();
-                                        Log.e("Facebook","Success"+facebookID+" "+name+" "+email+" "+" "+"token"+" "
-                                                +token+" "+"applicationId"+" "+applicationId);
-                                        Profile profile = Profile.getCurrentProfile();
-                                        String id = profile.getId();
-                                        String link = profile.getLinkUri().toString();
-                                        Log.e("Facebook",link+" "+"id"+" "+id);
-                                        if (Profile.getCurrentProfile()!=null)
-                                        {
-                                            Log.e("Facebook", "ProfilePic" + Profile.getCurrentProfile().getProfilePictureUri(200, 200));
-                                            //socialLogin(name,email, String.valueOf(Profile.getCurrentProfile().getProfilePictureUri(200, 200)),"Facebook");
-                                            Log.e("social-F","  "+"personName"+"  "+name+"   "+"email"+email+"  "+"personPhotoUrl"+"   "+String.valueOf(Profile.getCurrentProfile().getProfilePictureUri(200, 200)));
-
-                                        }
-//                                                Intent intent = new Intent(MainActivity.this,CalculatorActivity.class);
-//                                                startActivity(intent);
-                                        //
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-
-                            }
-
-                        });
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,name,email");
-                request.setParameters(parameters);
-                request.executeAsync();
-            }
-
-            @Override
-            public void onCancel() {
-                Log.e("Cancel",""+"");
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.e("Error",error.toString());
-            }
-        });
-    }
-
-
 }

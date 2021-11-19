@@ -1,4 +1,5 @@
 package com.swagVideo.in.activities;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -35,18 +36,23 @@ import com.swagVideo.in.utils.LocaleUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 @SuppressLint("LongLogTag")
 public class PhoneLoginFirebaseActivity extends PhoneLoginBaseActivity {
+
     private static final String TAG = "PhoneLoginFirebaseActivity";
+
     private FirebaseAuth mAuth;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     private KProgressHUD mProgress;
     private String mVerificationId;
     private boolean mVerificationInProgress;
+
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(LocaleUtil.wrap(base));
     }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,7 +112,6 @@ public class PhoneLoginFirebaseActivity extends PhoneLoginBaseActivity {
         if (mProgress != null && mProgress.isShowing()) {
             mProgress.dismiss();
         }
-
     }
 
     @Override
@@ -143,6 +148,7 @@ public class PhoneLoginFirebaseActivity extends PhoneLoginBaseActivity {
             mModel.errors.postValue(errors);
         }
     }
+
     private void verifyOtp() {
         mModel.errors.postValue(null);
         Map<String, String> errors = new HashMap<>();
@@ -190,6 +196,7 @@ public class PhoneLoginFirebaseActivity extends PhoneLoginBaseActivity {
                     }
                 });
     }
+
     private void loginWithServer(String token) {
         Log.v(TAG, "Transmitting Firebase ID token to server: " + token);
         REST rest = MainApplication.getContainer().get(REST.class);
@@ -229,5 +236,4 @@ public class PhoneLoginFirebaseActivity extends PhoneLoginBaseActivity {
                     }
                 });
     }
-
 }

@@ -461,12 +461,16 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
         });
         mPlay = view.findViewById(R.id.play);
         mProgressBar = view.findViewById(R.id.progress);
-//        mProgressBar.setVisibility(
-//                getResources().getBoolean(R.bool.player_progress_enabled)
-//                        ? View.VISIBLE
-//                        : View.GONE);
+        mProgressBar.setVisibility(
+                getResources().getBoolean(R.bool.player_progress_enabled)
+                        ? View.VISIBLE
+                        : View.GONE);
         mDuration = view.findViewById(R.id.duration);
-         View overlay = view.findViewById(R.id.overlay);
+        mDuration.setVisibility(
+                getResources().getBoolean(R.bool.player_duration_enabled)
+                        ? View.VISIBLE
+                        : View.GONE);
+        View overlay = view.findViewById(R.id.overlay);
         GestureDetector detector =
                 new GestureDetector(requireContext(), new PlayerGestureListener());
         overlay.setOnTouchListener((v, event) -> detector.onTouchEvent(event));
@@ -591,8 +595,7 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
 
         ImageView following = view.findViewById(R.id.following);
         following.setImageResource(
-//                mClip.user.followed() ? R.drawable.ic_following : R.drawable.ic_follow2);
-                mClip.user.followed() ? R.drawable.ic_following : R.drawable.ic_follow_1);
+                mClip.user.followed() ? R.drawable.ic_following : R.drawable.ic_follow2);
         following.setOnClickListener(v -> {
             if (mModel2.isLoggedIn()) {
                 if (mModel2.isLoggedIn() && !mClip.user.me && !mClip.user.followed()) {
@@ -821,7 +824,7 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
         boolean progress = getResources().getBoolean(R.bool.player_progress_enabled);
         boolean duration = getResources().getBoolean(R.bool.player_duration_enabled);
         if (progress || duration) {
-          //  mHandler.postDelayed(mProgress, 250);
+            mHandler.postDelayed(mProgress, 250);
         }
     }
 

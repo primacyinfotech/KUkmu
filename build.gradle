@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
-        classpath 'com.google.gms:google-services:4.3.10'
+        classpath 'com.google.gms:google-services:4.3.5'
         classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.3.3'
         // Uncomment below line to enable Sentry
         // classpath 'io.sentry:sentry-android-gradle-plugin:1.7.36'

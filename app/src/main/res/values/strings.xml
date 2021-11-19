@@ -245,7 +245,6 @@
     <string name="trending">Trending</string>
     <string name="recent">Recent</string>
     <string name="hashtag">Hashtag</string>
-    <string name="textdata">We texted you a code to verify</string>
-    <string name="textdata1">your mobile number</string>
+
 
 </resources>

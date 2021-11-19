@@ -80,6 +80,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TrendingFragment extends Fragment {
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -96,9 +97,11 @@ public class TrendingFragment extends Fragment {
     private String lat = "", longi = "";
     private Dialog myDialog;
     private ProgressBar loading;
+
     private SliderView sliderView;
     private SliderAdapterExample adapter;
     private ArrayList<SliderItem> sliderItems = new ArrayList<>();
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -131,7 +134,7 @@ public class TrendingFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_trending, container, false);
-        Log.e("Tranding","Tranding");
+
         initView(view);
 
         setSlider();
@@ -144,7 +147,9 @@ public class TrendingFragment extends Fragment {
         rv.setLayoutManager(new LinearLayoutManager(getActivity()));
         viewAdapter = new RecyclerViewAdapter<>(getActivity(), R.layout.trending_recycler_layout, nearBylIsts);
         viewAdapter.setMapper((viewHolder, source) -> {
+
             try {
+
                 RecyclerView rvItems = (RecyclerView) viewHolder.getView(R.id.rvItems);
                 TextView TvHeading = (TextView) viewHolder.getView(R.id.TvHeading);
                 TextView tvViews = (TextView) viewHolder.getView(R.id.tvViews);
@@ -159,6 +164,7 @@ public class TrendingFragment extends Fragment {
             replaceFragment(new TrendingTabsFragment());
         }
     });*/
+
                 for (int i = 0; i < source.getItems().size(); i++) {
                     itemList.add(new Itemlist(source.getItems().get(i).getScreenshot(), String.valueOf(source.getItems().get(i).getViewsCount())));
                 }
@@ -303,7 +309,6 @@ public class TrendingFragment extends Fragment {
                                 User user = new User();
                                 user = (User) gson.fromJson(jsonObject2.getJSONObject("user").toString(), User.class);
                                 myModelList.add(new NearBylIst("", jsonObject2.getString("video"), jsonObject2.getString("preview"), jsonObject2.getString("video"), user, jsonObject2.getInt("views_count"), jsonObject2.getInt("likes_count"), jsonObject2.getInt("comments_count"), jsonObject2.getBoolean("comments"), jsonObject2.getBoolean("liked"), jsonObject2.getBoolean("saved"), jsonObject2.getInt("id"), jsonObject2.getString("location"), jsonObject2.getString("screenshot")));
-                                Log.i("fetchNearbyData", jsonObject2.getString("video"));
                             }
                             JSONArray jsonArrayLatest = jsonObject1.getJSONArray("letestclip");
                             for (int j = 0; j < jsonArrayLatest.length(); j++) {

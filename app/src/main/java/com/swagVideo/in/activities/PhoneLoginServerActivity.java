@@ -42,9 +42,10 @@ public class PhoneLoginServerActivity extends PhoneLoginBaseActivity {
         super.onCreate(savedInstanceState);
         View generate = findViewById(R.id.generate);
       /*  generate.setOnClickListener(v -> generateOtp());*/
-//        View verify = findViewById(R.id.verify);
-//       verify.setOnClickListener(v -> verifyOtp());
+        View verify = findViewById(R.id.verify);
+        verify.setOnClickListener(v -> verifyOtp());
     }
+
     private void generateOtp() {
         mModel.errors.postValue(null);
         KProgressHUD progress = KProgressHUD.create(this)
@@ -96,6 +97,7 @@ public class PhoneLoginServerActivity extends PhoneLoginBaseActivity {
                     }
                 });
     }
+
     private void showErrors(JSONObject json) throws Exception {
         JSONObject errors = json.getJSONObject("errors");
         Map<String, String> messages = new HashMap<>();
@@ -109,7 +111,7 @@ public class PhoneLoginServerActivity extends PhoneLoginBaseActivity {
 
         mModel.errors.postValue(messages);
     }
-
+///ei ta purano code ok
     private void verifyOtp() {
         mModel.errors.postValue(null);
         KProgressHUD progress = KProgressHUD.create(this)
@@ -133,6 +135,7 @@ public class PhoneLoginServerActivity extends PhoneLoginBaseActivity {
                                 data.putExtra(EXTRA_TOKEN, response.body());
                                 setResult(RESULT_OK, data);
                                 finish();
+                                Log.e("responsedata",""+response.body());
                             } else if (response.code() == 422) {
                                 try {
                                     String content = response.errorBody().string();

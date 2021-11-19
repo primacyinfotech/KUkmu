@@ -1,14 +1,14 @@
 package com.swagVideo.in.activities;
+
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,60 +22,50 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.FirebaseException;
-import com.google.firebase.FirebaseTooManyRequestsException;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthProvider;
 import com.hbb20.CountryCodePicker;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.swagVideo.in.MainApplication;
 import com.swagVideo.in.R;
 import com.swagVideo.in.data.api.REST;
 import com.swagVideo.in.data.models.Exists;
-import com.swagVideo.in.data.models.Token;
 import com.swagVideo.in.utils.LocaleUtil;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 public class PhoneLoginBaseActivity extends AppCompatActivity {
+
     public static final String EXTRA_TOKEN = "token";
+    TextInputLayout name,phone,otp;
+    CountryCodePicker cc;
+    Boolean sent;
+    Boolean exists;
+    View verify;
+    View generate;
     protected PhoneLoginActivityViewModel mModel;
     private static final String TAG = "PhoneLoginBaseActivity";
-   // TextInputEditText phonenumber;
-    EditText name;
-    TextInputLayout phone;
-    /////////////////////////
-    private FirebaseAuth mAuth;
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
-    private KProgressHUD mProgress;
-    private String mVerificationId;
-    private boolean mVerificationInProgress;
-    Boolean sent= true;
-    Boolean exists = true;
-    //////////////////////////////////////////
+    String s ="";
+    String s1 ="";
+    String s2 ="";
+    String s3 ="";
+    int cc1;
+    String otpp;
+    EditText edit_one_mpin,edit_two_mpin,edit_three_mpin,edit_four_mpin;
+    LinearLayout boxotp;
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(LocaleUtil.wrap(base));
     }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-      // setContentView(R.layout.activity_phone_login);
-        setContentView(R.layout.activity_phone_login1);
-        //phonenumber = (TextInputEditText)findViewById(R.id.phonenumber);
-        name = (EditText)findViewById(R.id.name);
+        setContentView(R.layout.activity_phone_login);
         ImageButton close = findViewById(R.id.header_back);
         close.setImageResource(R.drawable.ic_baseline_close_24);
         close.setOnClickListener(view -> finish());
@@ -85,13 +75,16 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
         int dcc = getResources().getInteger(R.integer.default_calling_code);
         mModel = new ViewModelProvider(this, new PhoneLoginActivityViewModel.Factory(dcc))
                 .get(PhoneLoginActivityViewModel.class);
-        CountryCodePicker cc = findViewById(R.id.cc);
+        cc = findViewById(R.id.cc);
         cc.setCountryForPhoneCode(mModel.cc);
+        boxotp = (LinearLayout)findViewById(R.id.boxotp);
+        boxotp.setVisibility(View.GONE);
         cc.setOnCountryChangeListener(() -> mModel.cc = cc.getSelectedCountryCodeAsInt());
-         phone = (TextInputLayout)findViewById(R.id.phone);
+        phone = findViewById(R.id.phone);
         cc.registerCarrierNumberEditText(phone.getEditText());
         phone.getEditText().setText(mModel.phone);
         phone.getEditText().addTextChangedListener(new TextWatcher() {
+
             @Override
             public void afterTextChanged(Editable editable) {
                 mModel.phone = editable.toString();
@@ -103,188 +96,188 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
         });
-       // TextInputLayout otp = findViewById(R.id.otp);
-//        otp.getEditText().setText(mModel.otp);
-//        otp.getEditText().addTextChangedListener(new TextWatcher() {
-//
-//            @Override
-//            public void afterTextChanged(Editable editable) {
+        otp = findViewById(R.id.otp);
+        otp.getEditText().setText(mModel.otp);
+        otp.getEditText().addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable editable) {
 //                mModel.otp = editable.toString();
-//            }
-//
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) { }
-//        });
-//        TextInputLayout name = findViewById(R.id.name);
-//        name.getEditText().setText(mModel.name);
-//        name.getEditText().addTextChangedListener(new TextWatcher() {
-//
-//            @Override
-//            public void afterTextChanged(Editable editable) {
-//                mModel.name = editable.toString();
-//            }
-//
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) { }
-//        });
+                mModel.otp = otpp;
 
+            }
 
-        phone.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+        });
+        //////////////////////////////////////////////////////
+        edit_one_mpin = (EditText)findViewById(R.id.edit_one_mpin);
+        edit_two_mpin = (EditText)findViewById(R.id.edit_two_mpin);
+        edit_three_mpin = (EditText)findViewById(R.id.edit_three_mpin);
+        edit_four_mpin = (EditText)findViewById(R.id.edit_four_mpin);
+        edit_one_mpin.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                //  Log.e("sos",""+s);
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 //   Log.e("count",""+String.valueOf(s.length()));
-
+                if (edit_one_mpin.getText().toString().length() == 1) {
+                    edit_two_mpin.requestFocus();
+                }
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-                int counts = Integer.parseInt(String.valueOf(s.length()));
-                if (counts == 10) {
-                    mModel.phone = s.toString();
-                    final String phoneId = phone.getEditText().toString();
-                    final String namee = name.getText().toString();
-                    if (TextUtils.isEmpty(phoneId)) {
-                        phone.setError("Enter your Phone Number");
-                        phone.requestFocus();
-                        return;
-                    }
-                    if (TextUtils.isEmpty(namee)) {
-                        name.setError("Enter your Name");
-                        name.requestFocus();
-                        return;
-                    }
-                    /// mModel.phone = phoneId;
-                    generateOtp(namee);
-                }
+            public void afterTextChanged(Editable edit) {
+                Log.e("sos",""+s);
+                s = edit.toString();
             }
         });
-        View generate = findViewById(R.id.generate);
+
+        edit_two_mpin.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                //  Log.e("sos",""+s);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //   Log.e("count",""+String.valueOf(s.length()));
+                if (edit_two_mpin.getText().toString().length() == 1) {
+                    edit_three_mpin.requestFocus();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable edit) {
+                Log.e("sos",""+s);
+                s1 = edit.toString();
+            }
+        });
+        edit_three_mpin.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                //  Log.e("sos",""+s);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //   Log.e("count",""+String.valueOf(s.length()));
+                if (edit_three_mpin.getText().toString().length() == 1) {
+                    edit_four_mpin.requestFocus();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable edit) {
+                Log.e("sos",""+s);
+                s2 = edit.toString();
+            }
+        });
+
+        edit_four_mpin.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                //  Log.e("sos",""+s);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence ss, int start, int before, int count) {
+                //   Log.e("count",""+String.valueOf(s.length()));
+                if (edit_three_mpin.getText().toString().length() == 1) {
+                    // Log.e("model",""+mModel.cc+" "+mModel.phone+" "+mModel.otp+" "+mModel.name);
+                    //verifyOtp(phone);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable edit) {
+                Log.e("sos",""+s);
+                s3 = edit.toString();
+                otpp = s+s1+s2+s3;
+                Log.e("otp",otpp);
+                mModel.otp = otpp;
+                otp.getEditText().setText(otpp);
+                Log.e("model",""+mModel.cc+" "+mModel.phone+" "+mModel.otp+" "+mModel.name);
+//                verifyOtp(cc1,phonee,otpp,namee);
+            }
+        });
+
+
+        ///////////////////////////////////////////////////
+        name = findViewById(R.id.name);
+        name.getEditText().setText(mModel.name);
+        name.getEditText().addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mModel.name = editable.toString();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+        });
+        generate = findViewById(R.id.generate);
         generate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String phoneId = phone.getEditText().toString();
-                final String namee = name.getText().toString();
-                if (TextUtils.isEmpty(phoneId)) {
-                    phone.setError("Enter your Phone Number");
-                    phone.requestFocus();
-                    return;
-                }
-                if (TextUtils.isEmpty(namee)) {
-                    name.setError("Enter your Name");
-                    name.requestFocus();
-                    return;
-                }
-                String cc= String.valueOf(mModel.cc);
-                Intent myIntent = new Intent(getApplicationContext(),OtpActivty.class);
-                myIntent.putExtra("name", namee);
-                myIntent.putExtra("phone", mModel.phone);
-                myIntent.putExtra("cc", cc);
-               // myIntent.putExtra("otp",  mModel.otp);
-                //Optional parameters
-                PhoneLoginBaseActivity.this.startActivity(myIntent);
-//
+                generateOtp();
             }
         });
-
-       // View verify = findViewById(R.id.verify);
+        verify = findViewById(R.id.verify);
         mModel.doesExist.observe(this, exists -> {
             sent = mModel.isSent.getValue();
-          //  name.setVisibility(sent && !exists ? View.VISIBLE : View.GONE);
+            name.setVisibility(sent && !exists ? View.VISIBLE : View.GONE);
+            Log.e("Data",sent+""+exists);
         });
         mModel.isSent.observe(this, sent -> {
             exists = mModel.doesExist.getValue();
-         //   name.setVisibility(sent && !exists ? View.VISIBLE : View.GONE);
-//            otp.setVisibility(sent ? View.VISIBLE : View.GONE);
-//            if (sent) {
-//                otp.requestFocus();
-//            }
+            name.setVisibility(sent && !exists ? View.VISIBLE : View.GONE);
+            Log.e("Data1",sent+""+exists);
+            otp.setVisibility(sent ? View.VISIBLE : View.GONE);
+            if (sent) {
+                otp.requestFocus();
+            }
 
-          //  verify.setEnabled(sent);
+            verify.setEnabled(sent);
         });
+        generate.setVisibility(View.VISIBLE);
+        verify.setVisibility(View.GONE);
         mModel.errors.observe(this, errors -> {
             phone.setError(null);
-          //  otp.setError(null);
-          //  name.setError(null);
+            otp.setError(null);
+            name.setError(null);
             if (errors == null) {
                 return;
             }
             if (errors.containsKey("phone")) {
                 phone.setError(errors.get("phone"));
             }
-//            if (errors.containsKey("otp")) {
-//                otp.setError(errors.get("otp"));
-//            }
+            if (errors.containsKey("otp")) {
+                otp.setError(errors.get("otp"));
+            }
             if (errors.containsKey("name")) {
-             //   name.setError(errors.get("name"));
+                name.setError(errors.get("name"));
             }
         });
         phone.getEditText().requestFocus();
-        mAuth = FirebaseAuth.getInstance();
-        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
-            @Override
-            public void onVerificationCompleted(@NotNull PhoneAuthCredential credential) {
-                Log.d(TAG, "Phone verification successfully completed, credential:" + credential);
-                mVerificationInProgress = false;
-                if (mProgress != null && mProgress.isShowing()) {
-                    mProgress.dismiss();
-                }
-
-                loginWithCredential(credential);
-            }
-
-            @Override
-            public void onVerificationFailed(@NotNull FirebaseException e) {
-                Log.d(TAG, "Phone verification failed with Firebase.", e);
-                mVerificationInProgress = false;
-                if (mProgress != null && mProgress.isShowing()) {
-                    mProgress.dismiss();
-                }
-
-                if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                    Map<String, String> errors = new HashMap<>();
-                    errors.put("phone", getString(R.string.error_invalid_phone));
-                    mModel.errors.postValue(errors);
-                } else if (e instanceof FirebaseTooManyRequestsException) {
-                    Snackbar.make(findViewById(android.R.id.content), R.string.error_internet,
-                            Snackbar.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCodeSent(@NonNull String verificationId,
-                                   @NonNull PhoneAuthProvider.ForceResendingToken token) {
-                Log.d(TAG, "Phone verification code was sent: " + verificationId);
-                if (mProgress != null && mProgress.isShowing()) {
-                    mProgress.dismiss();
-                }
-                mVerificationId = verificationId;
-                mModel.doesExist.postValue(true);
-                mModel.isSent.postValue(true);
-            }
-        };
     }
 
     public static class PhoneLoginActivityViewModel extends ViewModel {
-
         public int cc;
         public String phone = "";
         public String otp = "";
         public String name = "";
         public MutableLiveData<Boolean> doesExist = new MutableLiveData<>(false);
         public MutableLiveData<Boolean> isSent = new MutableLiveData<>(false);
-
         public MutableLiveData<Map<String, String>> errors = new MutableLiveData<>();
 
         public PhoneLoginActivityViewModel(int cc) {
@@ -307,7 +300,7 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
             }
         }
     }
-    private void generateOtp(String namee) {
+    private void generateOtp() {
         mModel.errors.postValue(null);
         KProgressHUD progress = KProgressHUD.create(this)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
@@ -326,12 +319,30 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
                         int code = response != null ? response.code() : -1;
                         int message = -1;
                         if (code == 200) {
-                            boolean exists = response.body().exists;
-                            mModel.doesExist.postValue(exists);
+                            boolean existss = response.body().exists;
+                            mModel.doesExist.postValue(existss);
                             mModel.isSent.postValue(true);
                             message = R.string.login_otp_sent;
-                            Log.e("OTPSEND",""+message);
-
+                            phone.setVisibility(View.GONE);
+                            cc.setVisibility(View.GONE);
+                            generate.setVisibility(View.GONE);
+                            verify.setVisibility(View.VISIBLE);
+                            boxotp.setVisibility(View.VISIBLE);
+                            mModel.doesExist.observe(PhoneLoginBaseActivity.this, exists -> {
+                                sent = mModel.isSent.getValue();
+                                name.setVisibility(sent && !exists ? View.GONE : View.GONE);
+                                Log.e("Data",sent+""+exists);
+                            });
+                            mModel.isSent.observe(PhoneLoginBaseActivity.this, sent -> {
+                                exists = mModel.doesExist.getValue();
+                                name.setVisibility(sent && !exists ? View.GONE : View.GONE);
+                                Log.e("Data1",sent+""+exists);
+                                otp.setVisibility(sent ? View.GONE : View.GONE);
+                                if (sent) {
+                                    otp.requestFocus();
+                                }
+                                verify.setEnabled(sent);
+                            });
                         } else if (code == 422) {
                             try {
                                 String content = response.errorBody().string();
@@ -373,101 +384,5 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
 
         mModel.errors.postValue(messages);
     }
-    private void loginWithCredential(PhoneAuthCredential credential) {
-        mProgress = KProgressHUD.create(this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setLabel(getString(R.string.progress_title))
-                .setCancellable(false)
-                .show();
-        mModel.errors.postValue(null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = task.getResult().getUser();
-                        user.getIdToken(false).addOnCompleteListener(this, task1 -> {
-                            if (task.isSuccessful()) {
-                                String token = task1.getResult().getToken();
-                                loginWithServer(token);
-                            } else if (mProgress != null && mProgress.isShowing()) {
-                                mProgress.dismiss();
-                            }
-                        });
-                    } else {
-                        if (mProgress != null && mProgress.isShowing()) {
-                            mProgress.dismiss();
-                        }
 
-                        Log.e(TAG, "Signin with phone credential failed.", task.getException());
-                        Map<String, String> errors = new HashMap<>();
-                        errors.put("otp", getString(R.string.error_invalid_otp));
-                        mModel.errors.postValue(errors);
-                    }
-                });
-    }
-    private void loginWithServer(String token) {
-        Log.v(TAG, "Transmitting Firebase ID token to server: " + token);
-        REST rest = MainApplication.getContainer().get(REST.class);
-        rest.loginFirebase(token)
-                .enqueue(new Callback<Token>() {
-
-                    @Override
-                    public void onResponse(
-                            @Nullable Call<Token> call,
-                            @Nullable Response<Token> response
-                    ) {
-                        if (mProgress != null && mProgress.isShowing()) {
-                            mProgress.dismiss();
-                        }
-
-                        if (response != null && response.isSuccessful()) {
-                            Intent data = new Intent();
-                            data.putExtra(EXTRA_TOKEN, response.body());
-                            setResult(RESULT_OK, data);
-                            finish();
-                        } else {
-                            Toast.makeText(PhoneLoginBaseActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(
-                            @Nullable Call<Token> call,
-                            @Nullable Throwable t
-                    ) {
-                        Log.e(TAG, "Login with Firebase phone auth has failed.", t);
-                        if (mProgress != null && mProgress.isShowing()) {
-                            mProgress.dismiss();
-                        }
-
-                        Toast.makeText(PhoneLoginBaseActivity.this, R.string.error_internet, Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void generateOtp() {
-        mProgress = KProgressHUD.create(this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setLabel(getString(R.string.progress_title))
-                .setCancellable(false)
-                .show();
-        mModel.errors.postValue(null);
-        Map<String, String> errors = new HashMap<>();
-        if (TextUtils.isEmpty(mModel.cc + "")) {
-            errors.put("cc", getString(R.string.error_field_required));
-        } else if (TextUtils.isEmpty(mModel.phone)) {
-            errors.put("phone", getString(R.string.error_field_required));
-        }
-
-        if (errors.isEmpty()) {
-            PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                    "+" + mModel.cc + mModel.phone,
-                    60,
-                    TimeUnit.SECONDS,
-                    this,
-                    mCallbacks);
-            mVerificationInProgress = true;
-        } else {
-            mModel.errors.postValue(errors);
-        }
-    }
 }
