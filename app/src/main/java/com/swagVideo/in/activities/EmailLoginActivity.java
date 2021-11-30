@@ -1,8 +1,13 @@
 package com.swagVideo.in.activities;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -13,10 +18,18 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.common.internal.ClientSettings;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.material.textfield.TextInputLayout;
 import com.kaopiz.kprogresshud.KProgressHUD;
 
@@ -28,6 +41,7 @@ import java.util.Map;
 
 import com.swagVideo.in.MainApplication;
 import com.swagVideo.in.R;
+import com.swagVideo.in.adapter.GpsTracker;
 import com.swagVideo.in.data.api.REST;
 import com.swagVideo.in.data.models.Exists;
 import com.swagVideo.in.data.models.Token;
@@ -40,8 +54,9 @@ public class EmailLoginActivity extends AppCompatActivity {
 
     public static final String EXTRA_TOKEN = "token";
     private static final String TAG = "EmailLoginActivity";
-
     private EmailLoginActivityViewModel mModel;
+    private double currentLatitude,currentLongitude;
+    private GpsTracker gpsTracker;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -143,55 +158,78 @@ public class EmailLoginActivity extends AppCompatActivity {
     }
 
     private void generateOtp() {
-        mModel.errors.postValue(null);
-        KProgressHUD progress = KProgressHUD.create(this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setLabel(getString(R.string.progress_title))
-                .setCancellable(false)
-                .show();
-        REST rest = MainApplication.getContainer().get(REST.class);
-        rest.loginEmailOtp(mModel.email)
-                .enqueue(new Callback<Exists>() {
+        if (ContextCompat.checkSelfPermission(EmailLoginActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(EmailLoginActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
 
-                    @Override
-                    public void onResponse(
-                            @Nullable Call<Exists> call,
-                            @Nullable Response<Exists> response
-                    ) {
-                        int code = response != null ? response.code() : -1;
-                        int message = -1;
-                        if (code == 200) {
-                            boolean exists = response.body().exists;
-                            mModel.doesExist.postValue(exists);
-                            mModel.isSent.postValue(true);
-                            message = R.string.login_otp_sent_email;
-                        } else if (code == 422) {
-                            try {
-                                String content = response.errorBody().string();
-                                showErrors(new JSONObject(content));
-                            } catch (Exception ignore) {
+        }else if (getLocation()) {
+            currentLatitude = gpsTracker.getLatitude();
+            currentLongitude = gpsTracker.getLongitude();
+
+            mModel.errors.postValue(null);
+            KProgressHUD progress = KProgressHUD.create(this)
+                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                    .setLabel(getString(R.string.progress_title))
+                    .setCancellable(false)
+                    .show();
+            REST rest = MainApplication.getContainer().get(REST.class);
+            rest.loginEmailOtp(mModel.email)
+                    .enqueue(new Callback<Exists>() {
+
+                        @Override
+                        public void onResponse(
+                                @Nullable Call<Exists> call,
+                                @Nullable Response<Exists> response
+                        ) {
+                            int code = response != null ? response.code() : -1;
+                            int message = -1;
+                            if (code == 200) {
+                                boolean exists = response.body().exists;
+                                mModel.doesExist.postValue(exists);
+                                mModel.isSent.postValue(true);
+                                message = R.string.login_otp_sent_email;
+                            } else if (code == 422) {
+                                try {
+                                    String content = response.errorBody().string();
+                                    showErrors(new JSONObject(content));
+                                } catch (Exception ignore) {
+                                }
+                            } else {
+                                message = R.string.error_internet;
                             }
-                        } else {
-                            message = R.string.error_internet;
+
+                            if (message != -1) {
+                                Toast.makeText(EmailLoginActivity.this, message, Toast.LENGTH_SHORT).show();
+                            }
+
+                            progress.dismiss();
                         }
 
-                        if (message != -1) {
-                            Toast.makeText(EmailLoginActivity.this, message, Toast.LENGTH_SHORT).show();
+                        @Override
+                        public void onFailure(
+                                @Nullable Call<Exists> call,
+                                @Nullable Throwable t
+                        ) {
+                            Log.e(TAG, "Failed when trying to generate OTP.", t);
+                            Toast.makeText(EmailLoginActivity.this, R.string.error_internet, Toast.LENGTH_SHORT).show();
+                            progress.dismiss();
                         }
+                    });
+        }
+    }
 
-                        progress.dismiss();
-                    }
 
-                    @Override
-                    public void onFailure(
-                            @Nullable Call<Exists> call,
-                            @Nullable Throwable t
-                    ) {
-                        Log.e(TAG, "Failed when trying to generate OTP.", t);
-                        Toast.makeText(EmailLoginActivity.this, R.string.error_internet, Toast.LENGTH_SHORT).show();
-                        progress.dismiss();
-                    }
-                });
+    public boolean getLocation() {
+        gpsTracker = new GpsTracker(this);
+        if (gpsTracker.canGetLocation()) {
+            currentLatitude = gpsTracker.getLatitude();
+            currentLongitude = gpsTracker.getLongitude();
+
+            return true;
+        } else {
+            gpsTracker.showSettingsAlert();
+
+            return false;
+        }
     }
 
     private void showErrors(JSONObject json) throws Exception {
@@ -265,4 +303,6 @@ public class EmailLoginActivity extends AppCompatActivity {
 
         public MutableLiveData<Map<String, String>> errors = new MutableLiveData<>();
     }
+
+
 }

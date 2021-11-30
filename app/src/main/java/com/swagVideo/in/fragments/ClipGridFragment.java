@@ -9,8 +9,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,10 +33,12 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.pixplicity.easyprefs.library.Prefs;
 
 import org.apache.commons.lang3.StringUtils;
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,9 +61,12 @@ import com.swagVideo.in.data.models.Advertisement;
 import com.swagVideo.in.data.models.Clip;
 import com.swagVideo.in.data.models.Song;
 import com.swagVideo.in.data.models.Wrappers;
+import com.swagVideo.in.events.ResetPlayerSliderEvent;
 import com.swagVideo.in.utils.AdsUtil;
 import com.swagVideo.in.utils.TextFormatUtil;
 import com.swagVideo.in.utils.VideoUtil;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -349,6 +356,10 @@ public class ClipGridFragment extends Fragment {
                 holder._private.setVisibility(View.GONE);
                 holder.disapproved.setVisibility(View.GONE);
             }
+
+            holder.ivDelete.setOnClickListener(v -> {
+                confirmDeletion(clip.id);
+            });
         }
     }
 
@@ -392,6 +403,7 @@ public class ClipGridFragment extends Fragment {
         public View _private;
         public View disapproved;
         public TextView likes;
+        public ImageView ivDelete;
 
         public ClipGridViewHolder(@NonNull View root) {
             super(root);
@@ -399,6 +411,57 @@ public class ClipGridFragment extends Fragment {
             _private = root.findViewById(R.id._private);
             disapproved = root.findViewById(R.id.disapproved);
             likes = root.findViewById(R.id.likes);
+            ivDelete = root.findViewById(R.id.iv_delete);
         }
     }
+
+    private void confirmDeletion(int id) {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setMessage(R.string.confirmation_delete_clip)
+                .setNegativeButton(R.string.cancel_button, (dialog, i) -> dialog.cancel())
+                .setPositiveButton(R.string.yes_button, (dialog, i) -> {
+                    dialog.dismiss();
+                    deleteClip(id);
+                })
+                .show();
+    }
+
+    private void deleteClip(int id) {
+        KProgressHUD progress = KProgressHUD.create(requireActivity())
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel(getString(R.string.progress_title))
+                .setCancellable(false)
+                .show();
+        REST rest = MainApplication.getContainer().get(REST.class);
+        rest.clipsDelete(id)
+                .enqueue(new Callback<ResponseBody>() {
+
+                    @Override
+                    public void onResponse(
+                            @Nullable Call<ResponseBody> call,
+                            @Nullable Response<ResponseBody> response
+                    ) {
+                        int code = response != null ? response.code() : -1;
+                        Log.v(TAG, "Deleting clip returned " + code + '.');
+                        progress.dismiss();
+                        if (code == 200) {
+                            ClipItemDataSource source = mModel1.factory.source.getValue();
+                            if (source != null) {
+                                source.invalidate();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(
+                            @Nullable Call<ResponseBody> call,
+                            @Nullable Throwable t
+                    ) {
+                        Log.e(TAG, "Failed to delete selected clip.", t);
+                        Toast.makeText(getActivity(), "Failed to delete selected clip!", Toast.LENGTH_SHORT).show();
+                        progress.dismiss();
+                    }
+                });
+    }
+
 }

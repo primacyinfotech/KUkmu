@@ -3,6 +3,7 @@ package com.swagVideo.in.fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
 import com.smarteist.autoimageslider.SliderAnimations;
 import com.smarteist.autoimageslider.SliderView;
@@ -21,7 +24,9 @@ import com.smarteist.autoimageslider.SliderViewAdapter;
 import com.swagVideo.in.R;
 import com.swagVideo.in.activities.MainActivity;
 import com.swagVideo.in.data.ClipDataSource;
+import com.swagVideo.in.data.api.REST;
 import com.swagVideo.in.data.models.Clip;
+import com.swagVideo.in.data.models.Slider;
 import com.swagVideo.in.pojo.SliderItem;
 
 import java.util.ArrayList;
@@ -35,6 +40,15 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import static com.swagVideo.in.fragments.NearbyFragment.clipStat;
+
+import org.json.JSONObject;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TrendingTabsFragment extends Fragment {
 
@@ -62,8 +76,7 @@ public class TrendingTabsFragment extends Fragment {
 
         sliderView = view.findViewById(R.id.imageSlider);
 
-        setSlider();
-
+        getSliderImage();
 
         ViewPager2 pager = view.findViewById(R.id.pager);
         pager.setAdapter(new PlayerTabPagerAdapter(this));
@@ -111,13 +124,57 @@ public class TrendingTabsFragment extends Fragment {
         super.onResume();
         clipStat = new Clip();
     }
-    private void setSlider(){
+
+
+    public void getSliderImage() {
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getResources().getString(R.string.server_url))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        REST api = retrofit.create(REST.class);
+        try {
+            Call<ResponseBody> call = api.getBannerList();
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Log.i("fetchNearbyData", response.body().toString());
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONObject jsonObjectData = jsonObject.getJSONObject("data");
+
+                        ArrayList<Slider>
+                                sliderList = new Gson().fromJson(jsonObject.getJSONObject("data").getString("list"), new TypeToken<List<Slider>>() {
+                        }.getType());
+
+                        setSlider(sliderList);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                   t.printStackTrace();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setSlider(ArrayList<Slider> sliderList) {
         sliderItems.clear();
-        //  for (int i=0; i<homeDashBoardlists.get(0).getBannerData().size(); i++) {
-        sliderItems.add(new SliderItem("Text Here", R.drawable.slideone));
+
+        for (int i=0; i<sliderList.size(); i++) {
+            sliderItems.add(new SliderItem(sliderList.get(i).getName(), sliderList.get(i).getImage()));
+       /* sliderItems.add(new SliderItem("Text Here", R.drawable.slideone));
         sliderItems.add(new SliderItem("Text Here", R.drawable.slidetwo));
-        sliderItems.add(new SliderItem("Text Here", R.drawable.slidethree));
-        //};
+        sliderItems.add(new SliderItem("Text Here", R.drawable.slidethree));*/
+        };
+
         adapter = new TrendingTabsFragment.SliderAdapterExample(getActivity(),sliderItems);
         sliderView.setSliderAdapter(adapter);
         sliderView.setIndicatorAnimation(IndicatorAnimationType.WORM); //set indicator animation by using SliderLayout.IndicatorAnimations. :WORM or THIN_WORM or COLOR or DROP or FILL or NONE or SCALE or SCALE_DOWN or SLIDE and SWAP!!
@@ -169,7 +226,8 @@ public class TrendingTabsFragment extends Fragment {
             viewHolder.textViewDescription.setTextSize(16);
             viewHolder.textViewDescription.setTextColor(Color.WHITE);
             Glide.with(viewHolder.itemView)
-                    .load(sliderItem.getImg())
+                    .load(sliderItem.getImage())
+                    .error(R.mipmap.ic_app_icon)
                     .fitCenter()
                     .into(viewHolder.imageViewBackground);
 

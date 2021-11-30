@@ -1,7 +1,9 @@
 package com.swagVideo.in.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -52,6 +54,7 @@ import com.swagVideo.in.utils.PackageUtil;
 import com.swagVideo.in.utils.SizeUtil;
 import com.swagVideo.in.utils.SocialSpanUtil;
 import com.swagVideo.in.utils.TextFormatUtil;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -101,6 +104,15 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        SharedPreferences sharedpreferences = getActivity().getSharedPreferences(getResources().getString(R.string.my_preference),Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putBoolean("isDraft", false);
+        editor.apply();
+    }
+
+    @Override
     public void onSocialHashtagClick(String hashtag) {
         Log.v(TAG, "User clicked hashtag: " + hashtag);
         ArrayList<String> hashtags = new ArrayList<>();
@@ -127,7 +139,12 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         View back = view.findViewById(R.id.header_back);
-        back.setOnClickListener(v -> ((MainActivity)requireActivity()).popBackStack());
+        back.setOnClickListener(v -> {
+            requireActivity().onBackPressed();
+        });
+       /* back.setOnClickListener(v ->
+                ((MainActivity) requireActivity()).popBackStack());*/
+
         //back.setVisibility(mUser == null ? View.GONE : View.VISIBLE);
         TextView title = view.findViewById(R.id.header_title);
         title.setText(R.string.profile_label);
@@ -157,7 +174,7 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
                         showRequestVerification();
                         break;
                     case R.id.settings:
-                        ((MainActivity)requireActivity()).showAbout();
+                        ((MainActivity) requireActivity()).showAbout();
                         break;
                 }
 
@@ -170,12 +187,12 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
         photo.setOnClickListener(v -> {
             User user = mModel1.user.getValue();
             if (user != null && !TextUtils.isEmpty(user.photo)) {
-                ((MainActivity)requireActivity())
+                ((MainActivity) requireActivity())
                         .showPhotoViewer('@' + user.username, Uri.parse(user.photo));
             }
         });
         View actions = view.findViewById(R.id.actions);
-       // actions.setVisibility(mUser == null ? View.GONE : View.VISIBLE);
+        // actions.setVisibility(mUser == null ? View.GONE : View.VISIBLE);
         TextView follow = view.findViewById(R.id.follow);
         follow.setOnClickListener(v -> {
             if (mModel2.isLoggedIn()) {
@@ -208,7 +225,7 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
         fab.setOnClickListener(v -> {
             User user = mModel1.user.getValue();
             if (user != null) {
-                ((MainActivity)requireActivity()).showQrSheet(user);
+                ((MainActivity) requireActivity()).showQrSheet(user);
             }
         });
         mModel1.user.observe(getViewLifecycleOwner(), user -> {
@@ -240,7 +257,7 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
 
             TextView bio = view.findViewById(R.id.bio);
             SocialSpanUtil.apply(bio, user.bio, this);
-           bio.setVisibility(TextUtils.isEmpty(user.bio) ? View.GONE : View.VISIBLE);
+            bio.setVisibility(TextUtils.isEmpty(user.bio) ? View.GONE : View.VISIBLE);
             if (getResources().getBoolean(R.bool.profile_clips_count_enabled)) {
                 TextView clips = view.findViewById(R.id.clips);
                 clips.setText(TextFormatUtil.toShortNumber(user.clipsCount));
@@ -257,8 +274,8 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
             followers.setText(TextFormatUtil.toShortNumber(user.followersCount));
             TextView followed = view.findViewById(R.id.followed);
             followed.setText(TextFormatUtil.toShortNumber(user.followedCount));
-           // actions.setVisibility(user.me ? View.GONE : View.VISIBLE);
-           // follow.setIconResource(user.followed() ? R.drawable.ic_unfollow : R.drawable.ic_follow);
+            // actions.setVisibility(user.me ? View.GONE : View.VISIBLE);
+            // follow.setIconResource(user.followed() ? R.drawable.ic_unfollow : R.drawable.ic_follow);
             follow.setText(user.followed() ? R.string.unfollow_label : R.string.follow_label);
             LinearLayout links = view.findViewById(R.id.links);
             if (user.links == null || user.links.isEmpty()) {
@@ -319,7 +336,8 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
 
           /*  rlProfile = getActivity().findViewById(R.id.rl_profile);
             rlProfile.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, 450));
-        */}catch (Exception e){
+        */
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -505,7 +523,7 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
         }
 
         if (mModel2.isLoggedIn()) {
-            ((MainActivity)requireActivity()).reportSubject("user", user.id);
+            ((MainActivity) requireActivity()).reportSubject("user", user.id);
         } else {
             ((MainActivity) requireActivity()).showLoginSheet();
         }
@@ -523,14 +541,14 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
     private void showEditor() {
         User user = mModel1.user.getValue();
         if (user != null) {
-            ((MainActivity)requireActivity()).showEditProfile();
+            ((MainActivity) requireActivity()).showEditProfile();
         }
     }
 
     private void showFollowerFollowing(boolean following) {
         User user = mModel1.user.getValue();
         if (user != null) {
-            ((MainActivity)requireActivity()).showFollowerFollowing(user.id, following);
+            ((MainActivity) requireActivity()).showFollowerFollowing(user.id, following);
         }
     }
 
@@ -558,12 +576,17 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
                     break;
             }
         }).attach();
+
+        SharedPreferences sharedpreferences = getActivity().getSharedPreferences(getResources().getString(R.string.my_preference), Context.MODE_PRIVATE);
+        boolean isDraft = sharedpreferences.getBoolean("isDraft", false);
+        if (isDraft)
+            pager.setCurrentItem(3);
     }
 
     private void showRequestVerification() {
         User user = mModel1.user.getValue();
         if (user != null) {
-            ((MainActivity)requireActivity()).showRequestVerification();
+            ((MainActivity) requireActivity()).showRequestVerification();
         }
     }
 
@@ -603,7 +626,7 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
                         Log.v(TAG, "Fetching chat thread returned " + code + '.');
                         if (response != null && response.isSuccessful()) {
                             Thread thread = response.body().data;
-                            ((MainActivity)requireActivity())
+                            ((MainActivity) requireActivity())
                                     .showMessages('@' + user.username, thread.id);
                         }
 

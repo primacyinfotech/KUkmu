@@ -54,6 +54,7 @@ import com.swagVideo.in.workers.VideoFilterWorker;
 
 public class FilterActivity extends AppCompatActivity {
 
+    public static final String EXTRA_AUDIO = "audio";
     public static final String EXTRA_SONG_ID = "song_id";
     public static final String EXTRA_VIDEO = "video";
     private static final String TAG = "FilterActivity";
@@ -63,6 +64,7 @@ public class FilterActivity extends AppCompatActivity {
     private GPUPlayerView mPlayerView;
     private int mSong;
     private String mVideo;
+    private String mAudio;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -74,6 +76,7 @@ public class FilterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter);
         mModel = new ViewModelProvider(this).get(FilterActivityViewModel.class);
+        mAudio = getIntent().getStringExtra(EXTRA_AUDIO);
         mSong = getIntent().getIntExtra(EXTRA_SONG_ID, 0);
         mVideo = getIntent().getStringExtra(EXTRA_VIDEO);
         ImageButton close = findViewById(R.id.header_back);
@@ -192,12 +195,25 @@ public class FilterActivity extends AppCompatActivity {
         }
     }
 
-    private void closeFinally(File clip) {
-        Log.v(TAG, "Filter was successfully applied to " + clip);
+    private void closeFinally(File copy) {
+       /* Log.v(TAG, "Filter was successfully applied to " + clip);
         Intent intent = new Intent(this, UploadActivity.class);
         intent.putExtra(UploadActivity.EXTRA_SONG_ID, mSong);
         intent.putExtra(UploadActivity.EXTRA_VIDEO, clip.getAbsolutePath());
         startActivity(intent);
+        finish();*/
+
+         {
+            Intent intent = new Intent(this, TrimmerActivity.class);
+            if (mAudio != null) {
+                intent.putExtra(TrimmerActivity.EXTRA_AUDIO, mAudio);
+            }
+
+            intent.putExtra(TrimmerActivity.EXTRA_SONG_ID,mSong);
+            intent.putExtra(TrimmerActivity.EXTRA_VIDEO, copy.getAbsolutePath());
+            startActivity(intent);
+        }
+
         finish();
     }
 

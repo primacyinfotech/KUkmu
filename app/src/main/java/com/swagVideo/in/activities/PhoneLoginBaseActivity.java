@@ -1,6 +1,7 @@
 package com.swagVideo.in.activities;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,22 +16,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.hbb20.CountryCodePicker;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.swagVideo.in.MainApplication;
 import com.swagVideo.in.R;
+import com.swagVideo.in.adapter.GpsTracker;
 import com.swagVideo.in.data.api.REST;
 import com.swagVideo.in.data.models.Exists;
 import com.swagVideo.in.utils.LocaleUtil;
@@ -38,25 +35,35 @@ import com.swagVideo.in.utils.LocaleUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class PhoneLoginBaseActivity extends AppCompatActivity {
 
     public static final String EXTRA_TOKEN = "token";
-    TextInputLayout name,phone,otp;
-    CountryCodePicker cc;
-    Boolean sent;
-    Boolean exists;
-    View verify;
-    View generate;
+    private TextInputLayout name, phone, otp;
+    private CountryCodePicker cc;
+    private Boolean sent;
+    private Boolean exists;
+    private View verify;
+    private View generate;
     protected PhoneLoginActivityViewModel mModel;
     private static final String TAG = "PhoneLoginBaseActivity";
-    String s ="";
-    String s1 ="";
-    String s2 ="";
-    String s3 ="";
+    private String s = "";
+    private String s1 = "";
+    private String s2 = "";
+    private String s3 = "";
     int cc1;
-    String otpp;
-    EditText edit_one_mpin,edit_two_mpin,edit_three_mpin,edit_four_mpin;
-    LinearLayout boxotp;
+    private String otpp;
+    private EditText edit_one_mpin, edit_two_mpin, edit_three_mpin, edit_four_mpin;
+    private LinearLayout boxotp;
+    private double currentLatitude, currentLongitude;
+    private GpsTracker gpsTracker;
+
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(LocaleUtil.wrap(base));
@@ -77,7 +84,7 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
                 .get(PhoneLoginActivityViewModel.class);
         cc = findViewById(R.id.cc);
         cc.setCountryForPhoneCode(mModel.cc);
-        boxotp = (LinearLayout)findViewById(R.id.boxotp);
+        boxotp = (LinearLayout) findViewById(R.id.boxotp);
         boxotp.setVisibility(View.GONE);
         cc.setOnCountryChangeListener(() -> mModel.cc = cc.getSelectedCountryCodeAsInt());
         phone = findViewById(R.id.phone);
@@ -91,10 +98,12 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
         });
         otp = findViewById(R.id.otp);
         otp.getEditText().setText(mModel.otp);
@@ -108,16 +117,18 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
         });
         //////////////////////////////////////////////////////
-        edit_one_mpin = (EditText)findViewById(R.id.edit_one_mpin);
-        edit_two_mpin = (EditText)findViewById(R.id.edit_two_mpin);
-        edit_three_mpin = (EditText)findViewById(R.id.edit_three_mpin);
-        edit_four_mpin = (EditText)findViewById(R.id.edit_four_mpin);
+        edit_one_mpin = (EditText) findViewById(R.id.edit_one_mpin);
+        edit_two_mpin = (EditText) findViewById(R.id.edit_two_mpin);
+        edit_three_mpin = (EditText) findViewById(R.id.edit_three_mpin);
+        edit_four_mpin = (EditText) findViewById(R.id.edit_four_mpin);
         edit_one_mpin.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -134,7 +145,7 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable edit) {
-                Log.e("sos",""+s);
+                Log.e("sos", "" + s);
                 s = edit.toString();
             }
         });
@@ -155,7 +166,7 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable edit) {
-                Log.e("sos",""+s);
+                Log.e("sos", "" + s);
                 s1 = edit.toString();
             }
         });
@@ -175,7 +186,7 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable edit) {
-                Log.e("sos",""+s);
+                Log.e("sos", "" + s);
                 s2 = edit.toString();
             }
         });
@@ -197,13 +208,13 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable edit) {
-                Log.e("sos",""+s);
+                Log.e("sos", "" + s);
                 s3 = edit.toString();
-                otpp = s+s1+s2+s3;
-                Log.e("otp",otpp);
+                otpp = s + s1 + s2 + s3;
+                Log.e("otp", otpp);
                 mModel.otp = otpp;
                 otp.getEditText().setText(otpp);
-                Log.e("model",""+mModel.cc+" "+mModel.phone+" "+mModel.otp+" "+mModel.name);
+                Log.e("model", "" + mModel.cc + " " + mModel.phone + " " + mModel.otp + " " + mModel.name);
 //                verifyOtp(cc1,phonee,otpp,namee);
             }
         });
@@ -220,10 +231,12 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
         });
         generate = findViewById(R.id.generate);
         generate.setOnClickListener(new View.OnClickListener() {
@@ -236,12 +249,12 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
         mModel.doesExist.observe(this, exists -> {
             sent = mModel.isSent.getValue();
             name.setVisibility(sent && !exists ? View.VISIBLE : View.GONE);
-            Log.e("Data",sent+""+exists);
+            Log.e("Data", sent + "" + exists);
         });
         mModel.isSent.observe(this, sent -> {
             exists = mModel.doesExist.getValue();
             name.setVisibility(sent && !exists ? View.VISIBLE : View.GONE);
-            Log.e("Data1",sent+""+exists);
+            Log.e("Data1", sent + "" + exists);
             otp.setVisibility(sent ? View.VISIBLE : View.GONE);
             if (sent) {
                 otp.requestFocus();
@@ -296,81 +309,91 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
             @Override
             public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
                 //noinspection unchecked
-                return (T)new PhoneLoginActivityViewModel(mCallingCode);
+                return (T) new PhoneLoginActivityViewModel(mCallingCode);
             }
         }
     }
+
     private void generateOtp() {
-        mModel.errors.postValue(null);
-        KProgressHUD progress = KProgressHUD.create(this)
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setLabel(getString(R.string.progress_title))
-                .setCancellable(false)
-                .show();
-        REST rest = MainApplication.getContainer().get(REST.class);
-        rest.loginPhoneOtp(mModel.cc + "", mModel.phone)
-                .enqueue(new Callback<Exists>() {
+        if (ContextCompat.checkSelfPermission(PhoneLoginBaseActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(PhoneLoginBaseActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
 
-                    @Override
-                    public void onResponse(
-                            @Nullable Call<Exists> call,
-                            @Nullable Response<Exists> response
-                    ) {
-                        int code = response != null ? response.code() : -1;
-                        int message = -1;
-                        if (code == 200) {
-                            boolean existss = response.body().exists;
-                            mModel.doesExist.postValue(existss);
-                            mModel.isSent.postValue(true);
-                            message = R.string.login_otp_sent;
-                            phone.setVisibility(View.GONE);
-                            cc.setVisibility(View.GONE);
-                            generate.setVisibility(View.GONE);
-                            verify.setVisibility(View.VISIBLE);
-                            boxotp.setVisibility(View.VISIBLE);
-                            mModel.doesExist.observe(PhoneLoginBaseActivity.this, exists -> {
-                                sent = mModel.isSent.getValue();
-                                name.setVisibility(sent && !exists ? View.GONE : View.GONE);
-                                Log.e("Data",sent+""+exists);
-                            });
-                            mModel.isSent.observe(PhoneLoginBaseActivity.this, sent -> {
-                                exists = mModel.doesExist.getValue();
-                                name.setVisibility(sent && !exists ? View.GONE : View.GONE);
-                                Log.e("Data1",sent+""+exists);
-                                otp.setVisibility(sent ? View.GONE : View.GONE);
-                                if (sent) {
-                                    otp.requestFocus();
+        } else if (getLocation()) {
+           /* currentLatitude = gpsTracker.getLatitude();
+            currentLongitude = gpsTracker.getLongitude();*/
+
+            mModel.errors.postValue(null);
+            KProgressHUD progress = KProgressHUD.create(this)
+                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                    .setLabel(getString(R.string.progress_title))
+                    .setCancellable(false)
+                    .show();
+            REST rest = MainApplication.getContainer().get(REST.class);
+            rest.loginPhoneOtp(mModel.cc + "", mModel.phone)
+                    .enqueue(new Callback<Exists>() {
+
+                        @Override
+                        public void onResponse(
+                                @Nullable Call<Exists> call,
+                                @Nullable Response<Exists> response
+                        ) {
+                            int code = response != null ? response.code() : -1;
+                            int message = -1;
+                            if (code == 200) {
+                                boolean existss = response.body().exists;
+                                mModel.doesExist.postValue(existss);
+                                mModel.isSent.postValue(true);
+                                message = R.string.login_otp_sent;
+                                phone.setVisibility(View.GONE);
+                                cc.setVisibility(View.GONE);
+                                generate.setVisibility(View.GONE);
+                                verify.setVisibility(View.VISIBLE);
+                                boxotp.setVisibility(View.VISIBLE);
+                                mModel.doesExist.observe(PhoneLoginBaseActivity.this, exists -> {
+                                    sent = mModel.isSent.getValue();
+                                    name.setVisibility(sent && !exists ? View.GONE : View.GONE);
+                                    Log.e("Data", sent + "" + exists);
+                                });
+                                mModel.isSent.observe(PhoneLoginBaseActivity.this, sent -> {
+                                    exists = mModel.doesExist.getValue();
+                                    name.setVisibility(sent && !exists ? View.GONE : View.GONE);
+                                    Log.e("Data1", sent + "" + exists);
+                                    otp.setVisibility(sent ? View.GONE : View.GONE);
+                                    if (sent) {
+                                        otp.requestFocus();
+                                    }
+                                    verify.setEnabled(sent);
+                                });
+                            } else if (code == 422) {
+                                try {
+                                    String content = response.errorBody().string();
+                                    showErrors(new JSONObject(content));
+                                } catch (Exception ignore) {
                                 }
-                                verify.setEnabled(sent);
-                            });
-                        } else if (code == 422) {
-                            try {
-                                String content = response.errorBody().string();
-                                showErrors(new JSONObject(content));
-                            } catch (Exception ignore) {
+                            } else {
+                                message = R.string.error_internet;
                             }
-                        } else {
-                            message = R.string.error_internet;
+
+                            if (message != -1) {
+                                Toast.makeText(PhoneLoginBaseActivity.this, message, Toast.LENGTH_SHORT).show();
+                            }
+
+                            progress.dismiss();
                         }
 
-                        if (message != -1) {
-                            Toast.makeText(PhoneLoginBaseActivity.this, message, Toast.LENGTH_SHORT).show();
+                        @Override
+                        public void onFailure(
+                                @Nullable Call<Exists> call,
+                                @Nullable Throwable t
+                        ) {
+                            Log.e(TAG, "Failed when trying to generate OTP.", t);
+                            Toast.makeText(PhoneLoginBaseActivity.this, R.string.error_internet, Toast.LENGTH_SHORT).show();
+                            progress.dismiss();
                         }
-
-                        progress.dismiss();
-                    }
-
-                    @Override
-                    public void onFailure(
-                            @Nullable Call<Exists> call,
-                            @Nullable Throwable t
-                    ) {
-                        Log.e(TAG, "Failed when trying to generate OTP.", t);
-                        Toast.makeText(PhoneLoginBaseActivity.this, R.string.error_internet, Toast.LENGTH_SHORT).show();
-                        progress.dismiss();
-                    }
-                });
+                    });
+        }
     }
+
     private void showErrors(JSONObject json) throws Exception {
         JSONObject errors = json.getJSONObject("errors");
         Map<String, String> messages = new HashMap<>();
@@ -383,6 +406,20 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
         }
 
         mModel.errors.postValue(messages);
+    }
+
+    public boolean getLocation() {
+        gpsTracker = new GpsTracker(this);
+        if (gpsTracker.canGetLocation()) {
+            currentLatitude = gpsTracker.getLatitude();
+            currentLongitude = gpsTracker.getLongitude();
+
+            return true;
+        } else {
+            gpsTracker.showSettingsAlert();
+
+            return false;
+        }
     }
 
 }

@@ -228,7 +228,7 @@ public interface REST {
     @DELETE("clips/{id}/likes")
     Call<ResponseBody> likesUnlike(@Path("id") int clip);
 
-    @Headers({"Accept: application/json","X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
+    @Headers({"Accept: application/json", "X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
     @FormUrlEncoded
     @POST("login/facebook")
     Call<Token> loginFacebook(@Field("token") String token);
@@ -241,8 +241,8 @@ public interface REST {
     @Headers("Accept: application/json")
     @FormUrlEncoded
     @POST("login/google")
-    Call<Token> loginGoogle(@Field("name") String name,@Field("token") String token,@Field("sub") String id,
-                            @Field("email") String email,@Field("picture") String picture);
+    Call<Token> loginGoogle(@Field("name") String name, @Field("token") String token, @Field("sub") String id,
+                            @Field("email") String email, @Field("picture") String picture);
 
     @Headers("Accept: application/json")
     @FormUrlEncoded
@@ -265,7 +265,9 @@ public interface REST {
             @Field("cc") String cc,
             @Field("phone") String phone,
             @Field("otp") String otp,
-            @Field("name") String name
+            @Field("name") String name,
+            @Field("latitude") String latitude,
+            @Field("longitude") String longitude
     );
 
     @Headers("Accept: application/json")
@@ -423,11 +425,11 @@ public interface REST {
     Call<ResponseBody> verificationsCreate(@Part MultipartBody.Part document);
 
     //Swagatam Sarkar GET: https://project.primacyinfotech.com/SwagVideo/api/get-radius-video?latitude=31.31000000&longitude=54.57000000
-    @Headers({"Accept: application/json","X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
+    @Headers({"Accept: application/json", "X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
     @GET("get-radius-video")
     Call<ResponseBody> getNearbyUsers(@Header("Authorization") String token, @Query("latitude") String lat, @Query("longitude") String longi);
 
-    @Headers({"Accept: application/json","X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
+    @Headers({"Accept: application/json", "X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
     @GET("clips-withoutlogin")
     Call<Wrappers.Paginated<Clip>> getVideoWithoutLogin(@Query("mine") @Nullable Boolean mine,
                                                         @Query("q") @Nullable String q,
@@ -448,7 +450,11 @@ public interface REST {
                                                         @Query("count") @Nullable Integer count);
 
     //https://project.primacyinfotech.com/SwagVideo/api/trending-video
-    @Headers({"Accept: application/json","X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
+    @Headers({"Accept: application/json", "X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
     @GET("trending-video")
     Call<ResponseBody> getTrending();
+
+    @Headers({"Accept: application/json", "X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
+    @GET("banner-list")
+    Call<ResponseBody> getBannerList();
 }

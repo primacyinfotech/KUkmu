@@ -35,6 +35,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
 import com.smarteist.autoimageslider.SliderAnimations;
 import com.smarteist.autoimageslider.SliderView;
@@ -47,6 +48,7 @@ import com.swagVideo.in.adapter.RecyclerViewAdapter;
 import com.swagVideo.in.adapter.TextGradient;
 import com.swagVideo.in.data.api.REST;
 import com.swagVideo.in.data.models.Clip;
+import com.swagVideo.in.data.models.Slider;
 import com.swagVideo.in.data.models.User;
 import com.swagVideo.in.pojo.Itemlist;
 import com.swagVideo.in.pojo.NearBylIst;
@@ -137,8 +139,6 @@ public class TrendingFragment extends Fragment {
 
         initView(view);
 
-        setSlider();
-
 //        nearBylIsts.add(new NearBylIst(R.drawable.people,"0.2", "http://goo.gl/gEgYUd","https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/f19c6c63077653.5aa65266cb14d.gif"));
 //        nearBylIsts.add(new NearBylIst(R.drawable.people,"1.2", "http://goo.gl/gEgYUd","https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/f19c6c63077653.5aa65266cb14d.gif"));
 //        nearBylIsts.add(new NearBylIst(R.drawable.people,"1.5", "http://goo.gl/gEgYUd","https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/f19c6c63077653.5aa65266cb14d.gif"));
@@ -166,7 +166,8 @@ public class TrendingFragment extends Fragment {
     });*/
 
                 for (int i = 0; i < source.getItems().size(); i++) {
-                    itemList.add(new Itemlist(source.getItems().get(i).getScreenshot(), String.valueOf(source.getItems().get(i).getViewsCount())));
+                    itemList.add(new Itemlist(source.getItems().get(i).getScreenshot(),
+                            String.valueOf(source.getItems().get(i).getViewsCount()), source.getItems().get(i).getDescription(), source.getItems().get(i).getUser().name));
                 }
                 if (itemList.size() > 0) {
        /* TvHeading.setVisibility(View.VISIBLE);
@@ -182,6 +183,13 @@ public class TrendingFragment extends Fragment {
                     SpannableStringBuilder sb = new SpannableStringBuilder();
                     sb.append(gradientText);
                     TvHeading.setText(sb);
+                    tvViews.setText(source.getTotalViewCount());
+
+                    llHeading.setOnClickListener(v -> {
+                        trendingLists = source.getItems();
+                        latestLists = source.getItemsLatest();
+                        replaceFragment(new TrendingTabsFragment());
+                    });
 
                     rvItems.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false));
                     viewAdapterItems = new RecyclerViewAdapter<>(getActivity(), R.layout.trending_items_layout, itemList);
@@ -189,6 +197,8 @@ public class TrendingFragment extends Fragment {
                         try {
                             ImageView iv = (ImageView) viewHolderitem.getView(R.id.iv);
                             TextView tvKm = (TextView) viewHolderitem.getView(R.id.tvKm);
+                            TextView tvUserName = (TextView) viewHolderitem.getView(R.id.tv_user_name);
+                            TextView tvTitle = (TextView) viewHolderitem.getView(R.id.tv_title);
 
                             iv.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -201,7 +211,9 @@ public class TrendingFragment extends Fragment {
                             });
 
                             tvKm.setText(sourceitem.getCount());
-                            Glide.with(this).load(sourceitem.getImg()).fitCenter().error(R.drawable.photo_placeholder).into(iv);
+                            tvUserName.setText(sourceitem.getUserName());
+                            tvTitle.setText(sourceitem.getTitle());
+                            Glide.with(this).load(sourceitem.getImg()).fitCenter().error(R.mipmap.ic_app_icon).into(iv);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -225,8 +237,8 @@ public class TrendingFragment extends Fragment {
         rv.setAdapter(viewAdapter);
         viewAdapter.notifyDataSetChanged();
 
-
         fetchTrending();
+        getSliderImage();
 
         return view;
 
@@ -240,14 +252,17 @@ public class TrendingFragment extends Fragment {
 
     }
 
-    private void setSlider(){
+    private void setSlider(ArrayList<Slider> sliderList) {
         sliderItems.clear();
-        //  for (int i=0; i<homeDashBoardlists.get(0).getBannerData().size(); i++) {
-        sliderItems.add(new SliderItem("Text Here", R.drawable.slideone));
+
+          for (int i=0; i<sliderList.size(); i++) {
+        sliderItems.add(new SliderItem(sliderList.get(i).getName(), sliderList.get(i).getImage()));
+       /* sliderItems.add(new SliderItem("Text Here", R.drawable.slideone));
         sliderItems.add(new SliderItem("Text Here", R.drawable.slidetwo));
-        sliderItems.add(new SliderItem("Text Here", R.drawable.slidethree));
-        //};
-        adapter = new SliderAdapterExample(getActivity(),sliderItems);
+        sliderItems.add(new SliderItem("Text Here", R.drawable.slidethree));*/
+        };
+
+        adapter = new SliderAdapterExample(getActivity(), sliderItems);
         sliderView.setSliderAdapter(adapter);
         sliderView.setIndicatorAnimation(IndicatorAnimationType.WORM); //set indicator animation by using SliderLayout.IndicatorAnimations. :WORM or THIN_WORM or COLOR or DROP or FILL or NONE or SCALE or SCALE_DOWN or SLIDE and SWAP!!
         sliderView.setSliderTransformAnimation(SliderAnimations.SIMPLETRANSFORMATION);
@@ -262,6 +277,52 @@ public class TrendingFragment extends Fragment {
     public void replaceFragment(Fragment fragment) {
         ((TrendingActivity) getContext()).replaceFragment(fragment);
 
+    }
+
+    public void getSliderImage() {
+        loading.setVisibility(View.VISIBLE);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getResources().getString(R.string.server_url))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        REST api = retrofit.create(REST.class);
+        try {
+            Call<ResponseBody> call = api.getBannerList();
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Log.i("fetchNearbyData", response.body().toString());
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONObject jsonObjectData = jsonObject.getJSONObject("data");
+
+                        ArrayList<Slider>
+                        sliderList = new Gson().fromJson(jsonObject.getJSONObject("data").getString("list"), new TypeToken<List<Slider>>() {
+                        }.getType());
+
+                        setSlider(sliderList);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        loading.setVisibility(View.GONE);
+                    }
+
+
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    progressDialog.dismiss();
+                }
+            });
+        } catch (Exception e) {
+            // progressDialog.dismiss();
+            loading.setVisibility(View.GONE);
+            e.printStackTrace();
+        }
     }
 
     public void fetchTrending() {
@@ -300,6 +361,7 @@ public class TrendingFragment extends Fragment {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject1 = new JSONObject(jsonArray.getString(i));
                             String hashtag = jsonObject1.getString("tag_title");
+                            String totalViewCount = jsonObject1.getString("total_view_count");
                             ArrayList<NearBylIst> myModelList = new ArrayList();
                             ArrayList<NearBylIst> myModelLatestList = new ArrayList();
                             JSONArray jsonArrayOther = jsonObject1.getJSONArray("otherclip");
@@ -308,7 +370,7 @@ public class TrendingFragment extends Fragment {
                                 JSONObject jsonObject2 = new JSONObject(jsonArrayOther.getString(j));
                                 User user = new User();
                                 user = (User) gson.fromJson(jsonObject2.getJSONObject("user").toString(), User.class);
-                                myModelList.add(new NearBylIst("", jsonObject2.getString("video"), jsonObject2.getString("preview"), jsonObject2.getString("video"), user, jsonObject2.getInt("views_count"), jsonObject2.getInt("likes_count"), jsonObject2.getInt("comments_count"), jsonObject2.getBoolean("comments"), jsonObject2.getBoolean("liked"), jsonObject2.getBoolean("saved"), jsonObject2.getInt("id"), jsonObject2.getString("location"), jsonObject2.getString("screenshot")));
+                                myModelList.add(new NearBylIst("", jsonObject2.getString("video"), jsonObject2.getString("preview"), jsonObject2.getString("video"), user, jsonObject2.getInt("views_count"), jsonObject2.getInt("likes_count"), jsonObject2.getInt("comments_count"), jsonObject2.getBoolean("comments"), jsonObject2.getBoolean("liked"), jsonObject2.getBoolean("saved"), jsonObject2.getInt("id"), jsonObject2.getString("location"), jsonObject2.getString("screenshot"), jsonObject2.getString("description")));
                             }
                             JSONArray jsonArrayLatest = jsonObject1.getJSONArray("letestclip");
                             for (int j = 0; j < jsonArrayLatest.length(); j++) {
@@ -316,10 +378,10 @@ public class TrendingFragment extends Fragment {
                                 JSONObject jsonObject2 = new JSONObject(jsonArrayLatest.getString(j));
                                 User user = new User();
                                 user = (User) gson.fromJson(jsonObject2.getJSONObject("user").toString(), User.class);
-                                myModelLatestList.add(new NearBylIst("", jsonObject2.getString("video"), jsonObject2.getString("preview"), jsonObject2.getString("video"), user, jsonObject2.getInt("views_count"), jsonObject2.getInt("likes_count"), jsonObject2.getInt("comments_count"), jsonObject2.getBoolean("comments"), jsonObject2.getBoolean("liked"), jsonObject2.getBoolean("saved"), jsonObject2.getInt("id"), jsonObject2.getString("location"), jsonObject2.getString("screenshot")));
+                                myModelLatestList.add(new NearBylIst("", jsonObject2.getString("video"), jsonObject2.getString("preview"), jsonObject2.getString("video"), user, jsonObject2.getInt("views_count"), jsonObject2.getInt("likes_count"), jsonObject2.getInt("comments_count"), jsonObject2.getBoolean("comments"), jsonObject2.getBoolean("liked"), jsonObject2.getBoolean("saved"), jsonObject2.getInt("id"), jsonObject2.getString("location"), jsonObject2.getString("screenshot"), jsonObject2.getString("description")));
                             }
                             //nearBylIsts.add(new TrendingList(hashtag, myModelList));
-                            nearBylIsts.add(new TrendingList(hashtag, myModelList, myModelLatestList));
+                            nearBylIsts.add(new TrendingList(hashtag, totalViewCount, myModelList, myModelLatestList));
                             Log.i("fetchNearbyData", "Listsize:" + String.valueOf(nearBylIsts.size()));
                         }
 
@@ -388,14 +450,15 @@ public class TrendingFragment extends Fragment {
             viewHolder.textViewDescription.setTextSize(16);
             viewHolder.textViewDescription.setTextColor(Color.WHITE);
             Glide.with(viewHolder.itemView)
-                    .load(sliderItem.getImg())
+                    .load(sliderItem.getImage())
+                    .error(R.mipmap.ic_app_icon)
                     .fitCenter()
                     .into(viewHolder.imageViewBackground);
 
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                   // Toast.makeText(getContext(), "This is item in position " + position, Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getContext(), "This is item in position " + position, Toast.LENGTH_SHORT).show();
                 }
             });
         }

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -27,8 +28,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -60,6 +66,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import info.hoang8f.android.segmented.SegmentedGroup;
+
+import com.swagVideo.in.MainNavigationDirections;
 import com.swagVideo.in.R;
 import com.swagVideo.in.SharedConstants;
 import com.swagVideo.in.common.FilterAdapter;
@@ -71,6 +79,7 @@ import com.swagVideo.in.filters.HazeFilter;
 import com.swagVideo.in.filters.MonochromeFilter;
 import com.swagVideo.in.filters.PixelatedFilter;
 import com.swagVideo.in.filters.SolarizeFilter;
+import com.swagVideo.in.fragments.ProfileFragment;
 import com.swagVideo.in.utils.AnimationUtil;
 import com.swagVideo.in.utils.BitmapUtil;
 import com.swagVideo.in.utils.IntentUtil;
@@ -300,6 +309,8 @@ public class RecorderActivity extends AppCompatActivity {
         Slider selection = findViewById(R.id.selection);
         selection.setLabelFormatter(value -> TextFormatUtil.toMMSS((long)value));
         View upload = findViewById(R.id.upload);
+        View album = findViewById(R.id.album);
+        View draft = findViewById(R.id.draft);
 
         TextView tv_10 = findViewById(R.id.tv_10);
         TextView tv_15 = findViewById(R.id.tv_15);
@@ -390,6 +401,17 @@ public class RecorderActivity extends AppCompatActivity {
 
         //tv_20.setSelected(true);
         tv_15.performClick();
+
+        FragmentContainerView containerView = findViewById(R.id.host);
+        draft.setOnClickListener(v -> {
+            SharedPreferences sharedpreferences = getSharedPreferences(getResources().getString(R.string.my_preference),Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedpreferences.edit();
+            editor.putBoolean("isDraft", true);
+            editor.apply();
+
+            findNavController().navigate(MainNavigationDirections.actionShowProfileSelf());
+            containerView.setVisibility(View.VISIBLE);
+        });
 
         upload.setOnClickListener(view -> {
             String[] permissions = new String[]{
@@ -517,6 +539,12 @@ public class RecorderActivity extends AppCompatActivity {
                 startRecording();
             }
         });
+    }
+
+    public NavController findNavController() {
+        NavHostFragment fragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.host);
+        return fragment.getNavController();
     }
 
     @Override
@@ -725,15 +753,15 @@ public class RecorderActivity extends AppCompatActivity {
 
     private void proceedToFilter(String video) {
         Intent intent;
-     /*   if (getResources().getBoolean(R.bool.filters_enabled)) {
+        if (getResources().getBoolean(R.bool.filters_enabled)) {
             intent = new Intent(this, FilterActivity.class);
             intent.putExtra(FilterActivity.EXTRA_VIDEO, video);
             intent.putExtra(FilterActivity.EXTRA_SONG_ID, mModel.songId);
-        } else {*/
+        } else {
             intent = new Intent(this, UploadActivity.class);
             intent.putExtra(UploadActivity.EXTRA_VIDEO, video);
             intent.putExtra(UploadActivity.EXTRA_SONG_ID, mModel.songId);
-    //    }
+       }
 
         startActivity(intent);
         finish();
@@ -929,8 +957,12 @@ public class RecorderActivity extends AppCompatActivity {
         AnimationUtil.toggleVisibilityToBottom(upload, show);
         View done = findViewById(R.id.done);
         AnimationUtil.toggleVisibilityToBottom(done, show);
+        View rlMediaType = findViewById(R.id.rl_media_type);
+        AnimationUtil.toggleVisibilityToBottom(rlMediaType, show);
         View left = findViewById(R.id.left);
         AnimationUtil.toggleVisibilityToLeft(left, show);
+        View llMusic = findViewById(R.id.ll_music);
+        AnimationUtil.toggleVisibilityToBottom(llMusic, show);
     }
 
     public static class RecorderActivityViewModel extends ViewModel {

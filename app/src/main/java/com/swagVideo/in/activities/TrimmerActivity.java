@@ -154,13 +154,13 @@ public class TrimmerActivity extends AppCompatActivity implements AnalyticsListe
                     TimeUnit.MILLISECONDS.toSeconds(SharedConstants.MAX_DURATION)
             );
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        } else if (duration < SharedConstants.MIN_DURATION) {
+        } /*else if (duration < SharedConstants.MIN_DURATION) {
             String message = getString(
                     R.string.message_trim_too_short,
                     TimeUnit.MILLISECONDS.toSeconds(SharedConstants.MIN_DURATION)
             );
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        } else {
+        }*/ else {
             submitForTrim();
         }
     }

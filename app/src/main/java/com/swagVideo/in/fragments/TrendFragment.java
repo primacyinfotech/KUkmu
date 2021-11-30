@@ -131,15 +131,9 @@ public class TrendFragment extends Fragment {
 
         initView(view);
 
-
-
-
-
         rv.setLayoutManager(new GridLayoutManager(getActivity(),3));
         viewAdapter = new RecyclerViewAdapter<>(getActivity(), R.layout.trend_item_layout,trendingLists);
         viewAdapter.setMapper((viewHolder, source) -> {
-
-
 
             ImageView iv = (ImageView) viewHolder.getView(R.id.iv);
             TextView tvView = (TextView) viewHolder.getView(R.id.tvView);
@@ -166,7 +160,7 @@ public class TrendFragment extends Fragment {
                             });
 
              tvView.setText(String.valueOf(source.viewsCount));
-             Glide.with(this).load(source.getScreenshot()).fitCenter().error(R.drawable.photo_placeholder).into(iv);
+             Glide.with(this).load(source.getScreenshot()).fitCenter().error(R.mipmap.ic_app_icon).into(iv);
 
 
         });

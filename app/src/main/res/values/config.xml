@@ -114,7 +114,7 @@
     <bool name="sharing_enabled">true</bool>
     <bool name="sharing_async_enabled">true</bool>
     <bool name="sharing_links_enabled">true</bool>
-    <string name="sharing_links_domain" translatable="false">XXXXXXXXXXXXXXXX.page.link</string>
+    <string name="sharing_links_domain" translatable="false">swagvideo.page.link</string>
     <bool name="sharing_sheet_enabled">true</bool>
     <bool name="sharing_watermark_enabled">true</bool>
 
@@ -173,5 +173,8 @@
     <bool name="skip_recording_options">false</bool>
     <integer name="default_calling_code">91</integer>
     <bool name="recorder_stop_on_song_end">true</bool>
+
+
+    <string name="my_preference" translatable="false">swagvideo</string>
 
 </resources>
