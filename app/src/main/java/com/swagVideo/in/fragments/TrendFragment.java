@@ -131,12 +131,15 @@ public class TrendFragment extends Fragment {
 
         initView(view);
 
-        rv.setLayoutManager(new GridLayoutManager(getActivity(),3));
+        //rv.setLayoutManager(new GridLayoutManager(getActivity(),3));
+        rv.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false));
         viewAdapter = new RecyclerViewAdapter<>(getActivity(), R.layout.trend_item_layout,trendingLists);
         viewAdapter.setMapper((viewHolder, source) -> {
 
             ImageView iv = (ImageView) viewHolder.getView(R.id.iv);
             TextView tvView = (TextView) viewHolder.getView(R.id.tvView);
+            ImageView ivUser = (ImageView) viewHolder.getView(R.id.iv_user);
+            TextView tvUserName = (TextView) viewHolder.getView(R.id.tv_user_name);
 
 //            tvView.setText(source.getViewsCount());
 
@@ -160,8 +163,9 @@ public class TrendFragment extends Fragment {
                             });
 
              tvView.setText(String.valueOf(source.viewsCount));
-             Glide.with(this).load(source.getScreenshot()).fitCenter().error(R.mipmap.ic_app_icon).into(iv);
-
+             tvUserName.setText(String.valueOf(source.getUser().name));
+             Glide.with(this).load(source.getGif()).fitCenter().error(R.mipmap.ic_app_icon).into(iv);
+             Glide.with(this).load(source.getUser().photo).fitCenter().error(R.drawable.user).into(ivUser);
 
         });
         rv.setAdapter(viewAdapter);

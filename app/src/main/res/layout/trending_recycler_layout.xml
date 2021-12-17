@@ -27,20 +27,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="7dp"
-                android:paddingVertical="3dp"
+                android:paddingVertical="1dp"
                 android:background="@drawable/bg_round_red_sheet">
                 <ImageView
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
                     android:layout_gravity="center_vertical"
                     app:tint="@color/quantum_white_100"
                     android:src="@drawable/ic_swag"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="9sp"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginLeft="5dp"
-                    android:fontFamily="@font/montserrat_semi_bold"
-                    android:text="Badge"
+                    android:fontFamily="@font/montserrat_light"
+                    android:text="Trending hastag"
                     android:textColor="@color/quantum_white_100"/>
             </LinearLayout>
 
@@ -74,12 +76,13 @@
         </LinearLayout>
 
     </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_below="@id/heading"
+        android:id="@+id/rvItems"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_below="@id/heading"
         android:layout_marginTop="10dp"
-        android:id="@+id/rvItems"/>
+        android:layout_marginBottom="20dp" />
 
 </RelativeLayout>

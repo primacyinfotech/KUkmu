@@ -166,8 +166,10 @@ public class TrendingFragment extends Fragment {
     });*/
 
                 for (int i = 0; i < source.getItems().size(); i++) {
-                    itemList.add(new Itemlist(source.getItems().get(i).getScreenshot(),
-                            String.valueOf(source.getItems().get(i).getViewsCount()), source.getItems().get(i).getDescription(), source.getItems().get(i).getUser().name));
+                    itemList.add(new Itemlist(source.getItems().get(i).getGif(),
+                            String.valueOf(source.getItems().get(i).getViewsCount()),
+                            source.getItems().get(i).getDescription(),
+                            source.getItems().get(i).getUser().name, source.getItems().get(i).getUser().photo));
                 }
                 if (itemList.size() > 0) {
        /* TvHeading.setVisibility(View.VISIBLE);
@@ -188,7 +190,14 @@ public class TrendingFragment extends Fragment {
                     llHeading.setOnClickListener(v -> {
                         trendingLists = source.getItems();
                         latestLists = source.getItemsLatest();
-                        replaceFragment(new TrendingTabsFragment());
+                        Bundle args = new Bundle();
+                        args.putString("heading", source.getHeading());
+                        args.putString("description", source.getDesc());
+                        args.putString("image", source.getImage());
+                        args.putString("viewCount", source.getTotalViewCount());
+                        TrendingTabsFragment fragment=new TrendingTabsFragment();
+                        fragment.setArguments(args);
+                        replaceFragment(fragment);
                     });
 
                     rvItems.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false));
@@ -197,6 +206,7 @@ public class TrendingFragment extends Fragment {
                         try {
                             ImageView iv = (ImageView) viewHolderitem.getView(R.id.iv);
                             TextView tvKm = (TextView) viewHolderitem.getView(R.id.tvKm);
+                            ImageView ivUser = (ImageView) viewHolderitem.getView(R.id.iv_user);
                             TextView tvUserName = (TextView) viewHolderitem.getView(R.id.tv_user_name);
                             TextView tvTitle = (TextView) viewHolderitem.getView(R.id.tv_title);
 
@@ -204,8 +214,14 @@ public class TrendingFragment extends Fragment {
                                 @Override
                                 public void onClick(View v) {
                                     trendingLists = source.getItems();
-                                    latestLists = source.getItemsLatest();
-                                    replaceFragment(new TrendingTabsFragment());
+                                    latestLists = source.getItemsLatest(); Bundle args = new Bundle();
+                                    args.putString("heading", source.getHeading());
+                                    args.putString("description", source.getDesc());
+                                    args.putString("image", source.getImage());
+                                    args.putString("viewCount", source.getTotalViewCount());
+                                    TrendingTabsFragment fragment=new TrendingTabsFragment();
+                                    fragment.setArguments(args);
+                                    replaceFragment(fragment);
 
                                 }
                             });
@@ -214,6 +230,8 @@ public class TrendingFragment extends Fragment {
                             tvUserName.setText(sourceitem.getUserName());
                             tvTitle.setText(sourceitem.getTitle());
                             Glide.with(this).load(sourceitem.getImg()).fitCenter().error(R.mipmap.ic_app_icon).into(iv);
+                            String imgUrl=getResources().getString(R.string.image_base_url)+sourceitem.getUserImage();
+                            Glide.with(this).load(imgUrl).fitCenter().error(R.drawable.user).into(ivUser);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -361,6 +379,8 @@ public class TrendingFragment extends Fragment {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject1 = new JSONObject(jsonArray.getString(i));
                             String hashtag = jsonObject1.getString("tag_title");
+                            String tagImage = jsonObject1.getString("tag_image");
+                            String tagDesc = jsonObject1.getString("tag_desc");
                             String totalViewCount = jsonObject1.getString("total_view_count");
                             ArrayList<NearBylIst> myModelList = new ArrayList();
                             ArrayList<NearBylIst> myModelLatestList = new ArrayList();
@@ -381,7 +401,7 @@ public class TrendingFragment extends Fragment {
                                 myModelLatestList.add(new NearBylIst("", jsonObject2.getString("video"), jsonObject2.getString("preview"), jsonObject2.getString("video"), user, jsonObject2.getInt("views_count"), jsonObject2.getInt("likes_count"), jsonObject2.getInt("comments_count"), jsonObject2.getBoolean("comments"), jsonObject2.getBoolean("liked"), jsonObject2.getBoolean("saved"), jsonObject2.getInt("id"), jsonObject2.getString("location"), jsonObject2.getString("screenshot"), jsonObject2.getString("description")));
                             }
                             //nearBylIsts.add(new TrendingList(hashtag, myModelList));
-                            nearBylIsts.add(new TrendingList(hashtag, totalViewCount, myModelList, myModelLatestList));
+                            nearBylIsts.add(new TrendingList(hashtag,tagImage,tagDesc, totalViewCount, myModelList, myModelLatestList));
                             Log.i("fetchNearbyData", "Listsize:" + String.valueOf(nearBylIsts.size()));
                         }
 

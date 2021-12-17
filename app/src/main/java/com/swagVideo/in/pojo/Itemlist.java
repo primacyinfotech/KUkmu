@@ -1,13 +1,14 @@
 package com.swagVideo.in.pojo;
 
 public class Itemlist {
-    String img, count,title,userName;
+    String img, count,title,userName,userImage;
 
-    public Itemlist(String img, String count, String title, String userName) {
+    public Itemlist(String img, String count, String title, String userName, String userImage) {
         this.img = img;
         this.count = count;
         this.title = title;
         this.userName = userName;
+        this.userImage = userImage;
     }
 
     public String getImg() {
@@ -40,5 +41,13 @@ public class Itemlist {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getUserImage() {
+        return userImage;
+    }
+
+    public void setUserImage(String userImage) {
+        this.userImage = userImage;
     }
 }

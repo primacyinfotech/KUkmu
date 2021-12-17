@@ -50,7 +50,7 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
     private Boolean sent;
     private Boolean exists;
     private View verify;
-    private View generate;
+    private View generate,resend;
     protected PhoneLoginActivityViewModel mModel;
     private static final String TAG = "PhoneLoginBaseActivity";
     private String s = "";
@@ -245,6 +245,14 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
                 generateOtp();
             }
         });
+        resend = findViewById(R.id.resend);
+        resend.setVisibility(View.GONE);
+        resend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                generateOtp();
+            }
+        });
         verify = findViewById(R.id.verify);
         mModel.doesExist.observe(this, exists -> {
             sent = mModel.isSent.getValue();
@@ -348,6 +356,7 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
                                 cc.setVisibility(View.GONE);
                                 generate.setVisibility(View.GONE);
                                 verify.setVisibility(View.VISIBLE);
+                                resend.setVisibility(View.VISIBLE);
                                 boxotp.setVisibility(View.VISIBLE);
                                 mModel.doesExist.observe(PhoneLoginBaseActivity.this, exists -> {
                                     sent = mModel.isSent.getValue();

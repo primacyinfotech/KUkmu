@@ -424,7 +424,7 @@ public interface REST {
     @POST("verifications")
     Call<ResponseBody> verificationsCreate(@Part MultipartBody.Part document);
 
-    //Swagatam Sarkar GET: https://project.primacyinfotech.com/SwagVideo/api/get-radius-video?latitude=31.31000000&longitude=54.57000000
+    //GET: https://project.primacyinfotech.com/SwagVideo/api/get-radius-video?latitude=31.31000000&longitude=54.57000000
     @Headers({"Accept: application/json", "X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
     @GET("get-radius-video")
     Call<ResponseBody> getNearbyUsers(@Header("Authorization") String token, @Query("latitude") String lat, @Query("longitude") String longi);

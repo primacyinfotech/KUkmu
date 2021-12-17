@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -367,6 +368,7 @@ public class PlayerFragment extends Fragment implements AnalyticsListener, Visib
         TextView follow = getView().findViewById(R.id.follow);
         following.setImageResource(R.drawable.ic_following);
         follow.setText(R.string.following_label);
+        follow.setVisibility(View.INVISIBLE);
     }
 
     private void likeUnlike(boolean like) {
@@ -655,7 +657,10 @@ public class PlayerFragment extends Fragment implements AnalyticsListener, Visib
         });
 
         follow.setText(mClip.user.followed() ? R.string.following_label : R.string.follow_label);
-       // view.findViewById(R.id.flw).setVisibility(mClip.user.me || mClip.user.followed() ? View.GONE : View.VISIBLE);
+        if (mClip.user.followed()) {
+            follow.setVisibility(View.INVISIBLE);
+        }
+        //view.findViewById(R.id.flw).setVisibility(mClip.user.me || mClip.user.followed() ? View.GONE : View.VISIBLE);
         view.findViewById(R.id.verified)
                 .setVisibility(mClip.user.verified ? View.VISIBLE : View.GONE);
         TextView username = view.findViewById(R.id.username);
@@ -776,7 +781,13 @@ public class PlayerFragment extends Fragment implements AnalyticsListener, Visib
     }
 
     private void showComments() {
-        ((MainActivity)requireActivity()).showCommentsPage(mClip.id);
+        //((MainActivity)requireActivity()).showCommentsPage(mClip.id);
+        CommentsBottomDialogFragment addPhotoBottomDialogFragment =
+                CommentsBottomDialogFragment.newInstance(mClip.id);
+       getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        addPhotoBottomDialogFragment.show(getActivity().getSupportFragmentManager(),
+                "add_photo_dialog_fragment");
+
     }
 
     private void showLikeAnimation() {

@@ -159,6 +159,7 @@ public class NearbyFragment extends Fragment {
 
             CircleImageView ivUser = (CircleImageView) viewHolder.getView(R.id.ivUser);
             TextView tvKm = (TextView) viewHolder.getView(R.id.tvKm);
+            TextView tvUserName = (TextView) viewHolder.getView(R.id.tv_user_name);
             GIFView gifv = (GIFView) viewHolder.getView(R.id.gifv);
 
             gifv.setOnClickListener(new View.OnClickListener() {
@@ -187,6 +188,7 @@ public class NearbyFragment extends Fragment {
             });
 
             tvKm.setText(source.getKm()+" Km");
+            tvUserName.setText(source.getUser().name);
 
             Glide.with(this).load(source.getUser().photo).fitCenter().error(R.drawable.photo_placeholder).into(ivUser);
             Glide.with(this).load(source.getGif()).fitCenter().into(gifv);
@@ -320,7 +322,7 @@ public class NearbyFragment extends Fragment {
 
         REST api = retrofit.create(REST.class);
         try {
-            Call<ResponseBody> call = api.getNearbyUsers("Bearer" + Prefs.getString(SharedConstants.PREF_SERVER_TOKEN,""),latf, longif);
+            Call<ResponseBody> call = api.getNearbyUsers("Bearer " + Prefs.getString(SharedConstants.PREF_SERVER_TOKEN,""),latf, longif);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

@@ -54,8 +54,13 @@ public class TrendingTabsFragment extends Fragment {
 
     private MainActivity.MainActivityViewModel mModel;
     private SliderView sliderView;
+    private ImageView ivUser;
+    private TextView tvUserName;
+    private TextView tvDesc;
+    private TextView tvView;
     private TrendingTabsFragment.SliderAdapterExample adapter;
     private ArrayList<SliderItem> sliderItems = new ArrayList<>();
+    private String image,description,heading,viewCount;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,6 +80,19 @@ public class TrendingTabsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         sliderView = view.findViewById(R.id.imageSlider);
+        ivUser = view.findViewById(R.id.ivUser);
+        tvUserName = view.findViewById(R.id.tvUserName);
+        tvDesc = view.findViewById(R.id.tvDesc);
+        tvView = view.findViewById(R.id.tvView);
+
+        heading = getArguments().getString("heading");
+        description = getArguments().getString("description");
+        image = getArguments().getString("image");
+        viewCount = getArguments().getString("viewCount");
+        Glide.with(this).load(image).fitCenter().error(R.mipmap.ic_app_icon).into(ivUser);
+        tvUserName.setText(heading);
+        tvDesc.setText(description);
+        tvView.setText(viewCount);
 
         getSliderImage();
 

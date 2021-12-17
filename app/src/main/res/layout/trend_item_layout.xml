@@ -6,14 +6,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="150dp">
+        android:layout_width="110dp"
+        android:layout_height="180dp">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:cardCornerRadius="10dp"
-            android:layout_marginHorizontal="3dp"
+            app:cardCornerRadius="8dp"
+            android:layout_marginHorizontal="5dp"
             android:layout_marginVertical="3dp">
         <ImageView
             android:id="@+id/iv"
@@ -30,14 +30,65 @@
                 android:paddingHorizontal="5dp"
                 android:orientation="horizontal">
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="5dp"
                     android:paddingVertical="2dp"
                     android:background="@drawable/transparent_bg_round_corner"
                     android:orientation="horizontal">
+
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingVertical="2dp">
+
+                            <ImageView
+                                android:id="@+id/iv_user"
+                                android:layout_width="10dp"
+                                android:layout_height="10dp"
+                                android:layout_gravity="center_vertical"
+                                android:src="@drawable/user" />
+
+                            <TextView
+                                android:id="@+id/tv_user_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="5dp"
+                                android:gravity="center"
+                                android:maxLength="9"
+                                android:text="User"
+                                android:textColor="@color/emoji_white"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="right"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="5dp"
+                            android:paddingVertical="2dp">
+                            <ImageView
+                                android:layout_width="10dp"
+                                android:layout_height="10dp"
+                                android:layout_gravity="center_vertical"
+                                android:src="@drawable/ic_views" />
+                            <TextView
+                                android:id="@+id/tvView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:gravity="center"
+                                android:maxLength="3"
+                                android:text="9.9k"
+                                android:textColor="@color/emoji_white"
+                                android:textSize="9dp" />
+
+
+                        </LinearLayout><!--
                     <TextView
-                        android:id="@+id/tvView"
+                        android:id="@+id/"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
@@ -51,7 +102,7 @@
                         android:layout_height="10dp"
                         android:layout_marginLeft="5dp"
                         android:layout_gravity="center_vertical"
-                        android:src="@drawable/ic_views"/>
+                        android:src="@drawable/ic_views"/>-->
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>

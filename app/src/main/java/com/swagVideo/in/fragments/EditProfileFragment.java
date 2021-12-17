@@ -1,7 +1,15 @@
 package com.swagVideo.in.fragments;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -16,6 +24,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -30,6 +40,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jakewharton.rxbinding4.widget.RxTextView;
 import com.kaopiz.kprogresshud.KProgressHUD;
+import com.swagVideo.in.adapter.GpsTracker;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -37,10 +48,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -68,6 +81,10 @@ public class EditProfileFragment extends Fragment {
     private final List<Disposable> mDisposables = new ArrayList<>();
     private ProfileEditFragmentModel mModel1;
     private MainActivity.MainActivityViewModel mModel2;
+    private TextInputLayout location;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private Geocoder geocoder;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -91,6 +108,47 @@ public class EditProfileFragment extends Fragment {
         mModel1 = new ViewModelProvider(this).get(ProfileEditFragmentModel.class);
         mModel2 = new ViewModelProvider(requireActivity())
                 .get(MainActivity.MainActivityViewModel.class);
+
+
+        geocoder = new Geocoder(getActivity(), Locale.getDefault());
+
+        locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                try {
+                   double lat = location.getLatitude();
+                   double longi = location.getLongitude();
+                    // Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+                    List<Address> list =geocoder.getFromLocation(location.getLatitude(),location.getLongitude(),1);
+                    if(list != null && list.size() >0){
+                        Log.i("place", list.toString());
+                        //tvLocation.setText(list.get(0).getLocality()+", "+list.get(0).getAdminArea());
+                        // Log.i("lati", lat+longi);
+                        //  tvLocation.setText(list.get(0).);
+
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+
+            }
+        };
     }
 
     @Nullable
@@ -133,7 +191,7 @@ public class EditProfileFragment extends Fragment {
         SimpleDraweeView photo = view.findViewById(R.id.photo);
         photo.setOnClickListener(v -> choosePhotoAction());
         Disposable disposable;
-        TextInputLayout location = view.findViewById(R.id.location);
+        location = view.findViewById(R.id.location);
         //noinspection ConstantConditions
         disposable = RxTextView.afterTextChangeEvents(location.getEditText())
                 .skipInitialValue()
@@ -150,6 +208,7 @@ public class EditProfileFragment extends Fragment {
         }
 
         location.setEndIconOnClickListener(v -> pickLocation());
+        location.setStartIconOnClickListener(v -> setLocation());
         TextInputLayout name = view.findViewById(R.id.name);
         //noinspection ConstantConditions
         disposable = RxTextView.afterTextChangeEvents(name.getEditText())
@@ -650,6 +709,47 @@ public class EditProfileFragment extends Fragment {
         }
 
         mModel1.errors.postValue(messages);
+    }
+
+    private void setLocation(){
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        } else if(getLocation()){
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 100, 1, locationListener);
+            Location location1 = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (location1 != null) {
+                try {
+                    double lat = location1.getLatitude();
+                    double longi = location1.getLongitude();
+                    //Log.i("latiNetwork", lat+longi);
+                    //Geocoder geocoder = new Geocoder(HomeFragment.this.getContext(), Locale.getDefault());
+                    List<Address> list =geocoder.getFromLocation(location1.getLatitude(),location1.getLongitude(),1);
+                    if(list != null && list.size() >0){
+                        Log.i("place", list.toString());
+                        // tv_location.setText(list.get(0).getLocality()+", "+list.get(0).getAdminArea());
+                        location.getEditText().setText(list.get(0).getLocality()+", "+list.get(0).getAdminArea());
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }else
+                setLocation();
+        }
+    }
+
+    public boolean getLocation() {
+        GpsTracker gpsTracker = new GpsTracker(getContext());
+        if (gpsTracker.canGetLocation()) {
+            double currentLatitude = gpsTracker.getLatitude();
+            double currentLongitude = gpsTracker.getLongitude();
+
+            return true;
+        } else {
+            gpsTracker.showSettingsAlert();
+
+            return false;
+        }
     }
 
     public static class ProfileEditFragmentModel extends ViewModel {

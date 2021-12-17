@@ -45,6 +45,7 @@
     <string name="email_label">Email</string>
     <string name="empty_articles">No news articles found to display.</string>
     <string name="empty_clips">No clips found to display.</string>
+    <string name="title_comments">Comments</string>
     <string name="empty_comments">No comments found to display.</string>
     <string name="empty_conversations">No conversations found to display.</string>
     <string name="empty_followers">No followers found to display.</string>

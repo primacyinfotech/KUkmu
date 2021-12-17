@@ -17,6 +17,7 @@
         <TextView
             android:id="@+id/textId"
             android:gravity="bottom"
+            android:visibility="gone"
             android:paddingHorizontal="2dp"
             android:paddingBottom="55dp"
             android:layout_marginLeft="10sp"
@@ -40,6 +41,14 @@
                 app:roundAsCircle="true"
                 app:roundingBorderColor="@color/colorBadgeProfile"
                 app:roundingBorderWidth="2dp" />
+
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginHorizontal="5dp"
+                android:textColor="@color/emoji_white"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

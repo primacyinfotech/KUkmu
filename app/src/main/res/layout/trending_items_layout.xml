@@ -6,15 +6,15 @@
     android:orientation="vertical">
 
     <FrameLayout
-        android:layout_width="120dp"
-        android:layout_height="150dp"
+        android:layout_width="110dp"
+        android:layout_height="170dp"
         android:layout_margin="1dp">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginRight="5dp"
-            app:cardCornerRadius="10dp">
+            android:layout_marginRight="10dp"
+            app:cardCornerRadius="8dp">
 
             <ImageView
                 android:id="@+id/iv"
@@ -29,12 +29,13 @@
                 android:layout_height="match_parent"
                 android:gravity="bottom"
                 android:orientation="vertical"
-                android:paddingHorizontal="7dp">
+                android:paddingHorizontal="4dp">
 
                 <TextView
                     android:id="@+id/tv_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     android:textSize="12sp"
                     android:textColor="@color/quantum_white_100"
                     android:fontFamily="@font/montserrat_semi_bold"
@@ -43,6 +44,9 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingHorizontal="4dp"
+                    android:paddingVertical="2dp"
+                    android:background="@drawable/transparent_bg_round_corner"
                     android:orientation="horizontal">
 
                 <LinearLayout
@@ -52,6 +56,7 @@
                     android:paddingVertical="2dp">
 
                     <ImageView
+                        android:id="@+id/iv_user"
                         android:layout_width="10dp"
                         android:layout_height="10dp"
                         android:layout_gravity="center_vertical"
@@ -79,7 +84,7 @@
                         android:layout_width="10dp"
                         android:layout_height="10dp"
                         android:layout_gravity="center_vertical"
-                        android:src="@drawable/ic_button_like_border" />
+                        android:src="@drawable/ic_views" />
                     <TextView
                         android:id="@+id/tvKm"
                         android:layout_width="wrap_content"

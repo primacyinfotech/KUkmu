@@ -26,6 +26,7 @@ import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.work.WorkInfo;
@@ -36,16 +37,6 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.pixplicity.easyprefs.library.Prefs;
-
-import org.apache.commons.lang3.StringUtils;
-import org.greenrobot.eventbus.EventBus;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 import com.swagVideo.in.MainApplication;
 import com.swagVideo.in.R;
 import com.swagVideo.in.SharedConstants;
@@ -61,11 +52,18 @@ import com.swagVideo.in.data.models.Advertisement;
 import com.swagVideo.in.data.models.Clip;
 import com.swagVideo.in.data.models.Song;
 import com.swagVideo.in.data.models.Wrappers;
-import com.swagVideo.in.events.ResetPlayerSliderEvent;
 import com.swagVideo.in.utils.AdsUtil;
 import com.swagVideo.in.utils.TextFormatUtil;
 import com.swagVideo.in.utils.VideoUtil;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -142,7 +140,7 @@ public class ClipGridFragment extends Fragment {
             view.findViewById(R.id.header).setVisibility(View.GONE);
         } else {
             view.findViewById(R.id.header_back)
-                    .setOnClickListener(v -> ((MainActivity)requireActivity()).popBackStack());
+                    .setOnClickListener(v -> ((MainActivity) requireActivity()).popBackStack());
             TextView title = view.findViewById(R.id.header_title);
             title.setText(mTitle);
             view.findViewById(R.id.header_more).setVisibility(View.GONE);
@@ -151,7 +149,8 @@ public class ClipGridFragment extends Fragment {
         RecyclerView clips = view.findViewById(R.id.clips);
         ClipGridAdapter adapter = new ClipGridAdapter();
         clips.setAdapter(new SlideInBottomAnimationAdapter(adapter));
-        GridLayoutManager glm = new GridLayoutManager(requireContext(), 3);
+        //GridLayoutManager glm = new GridLayoutManager(requireContext(), 3);
+        LinearLayoutManager glm =new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false);
         clips.setLayoutManager(glm);
         mModel1.clips.observe(getViewLifecycleOwner(), adapter::submitList);
         SwipeRefreshLayout swipe = view.findViewById(R.id.swipe);
@@ -208,7 +207,7 @@ public class ClipGridFragment extends Fragment {
                     if (mModel2.isLoggedIn()) {
                         downloadForUse(model);
                     } else {
-                        ((MainActivity)requireActivity()).showLoginSheet();
+                        ((MainActivity) requireActivity()).showLoginSheet();
                     }
                 });
                 if (TextUtils.isEmpty(model.details)) {
@@ -324,7 +323,7 @@ public class ClipGridFragment extends Fragment {
     }
 
     private void showClipPlayer(int clip) {
-        ((MainActivity)requireActivity()).showPlayerSlider(clip, mParams);
+        ((MainActivity) requireActivity()).showPlayerSlider(clip, mParams);
     }
 
     private class ClipGridAdapter extends PagedListAdapter<Clip, ClipGridViewHolder> {
@@ -357,6 +356,8 @@ public class ClipGridFragment extends Fragment {
                 holder.disapproved.setVisibility(View.GONE);
             }
 
+            holder.ivDelete.setVisibility(clip.user.me ? View.VISIBLE : View.GONE);
+
             holder.ivDelete.setOnClickListener(v -> {
                 confirmDeletion(clip.id);
             });
@@ -382,7 +383,8 @@ public class ClipGridFragment extends Fragment {
 
         private static class Factory implements ViewModelProvider.Factory {
 
-            @NonNull private final Bundle mParams;
+            @NonNull
+            private final Bundle mParams;
 
             public Factory(@NonNull Bundle params) {
                 mParams = params;
@@ -392,7 +394,7 @@ public class ClipGridFragment extends Fragment {
             @Override
             public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
                 //noinspection unchecked
-                return (T)new ClipGridFragmentViewModel(mParams);
+                return (T) new ClipGridFragmentViewModel(mParams);
             }
         }
     }

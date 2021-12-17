@@ -2,6 +2,7 @@ package com.swagVideo.in.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -13,6 +14,7 @@ import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.SpannableString;
@@ -47,6 +49,7 @@ import androidx.core.content.FileProvider;
 import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -54,6 +57,7 @@ import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -99,6 +103,7 @@ import com.swagVideo.in.fragments.NearbyPlayerFragment;
 import com.swagVideo.in.fragments.PlayerFragment;
 import com.swagVideo.in.fragments.PlayerSliderFragment;
 import com.swagVideo.in.pojo.SliderItem;
+import com.swagVideo.in.workers.SaveToGalleryWorker;
 import com.thefinestartist.finestwebview.FinestWebView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -1318,6 +1323,11 @@ public class MainActivity extends AppCompatActivity {
                         bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         share(clip, SharingTarget.WHATSAPP);
                     });
+            options.findViewById(R.id.download)
+                    .setOnClickListener(v -> {
+                        bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                       submitForDownload(clip);
+                    });
             options.findViewById(R.id.other)
                     .setOnClickListener(v -> {
                         bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -1328,6 +1338,72 @@ public class MainActivity extends AppCompatActivity {
             share(clip, null);
         }
     }
+
+    @AfterPermissionGranted(SharedConstants.REQUEST_CODE_PERMISSIONS_DOWNLOAD)
+    private void submitForDownload(Clip mClip) {
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mClip.video));
+        //request.addRequestHeader("Accept", "application/pdf");
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        String filename = "VDO_" + mClip.id + "_" + System.currentTimeMillis() + ".mp4";
+// Save the file in the "Downloads" folder of SDCARD
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,filename);
+
+        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        downloadManager.enqueue(request);
+
+        Toast.makeText(getBaseContext(), R.string.message_downloading_async, Toast.LENGTH_SHORT).show();
+
+       /* WorkManager wm = WorkManager.getInstance(getBaseContext());
+        File fixed = TempUtil.createNewFile(getBaseContext(), ".mp4");
+        boolean async = getResources().getBoolean(R.bool.downloads_async_enabled);
+        String name = "VDO_" + mClip.id + "_" + System.currentTimeMillis() + ".mp4";
+        Data data = new Data.Builder()
+                .putString(SaveToGalleryWorker.KEY_FILE, fixed.getAbsolutePath())
+                .putString(SaveToGalleryWorker.KEY_NAME, name)
+                .putBoolean(SaveToGalleryWorker.KEY_NOTIFICATION, async)
+                .build();
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(SaveToGalleryWorker.class)
+                .setInputData(data)
+                .build();
+        if (getResources().getBoolean(R.bool.downloads_watermark_enabled)) {
+            File original = TempUtil.createNewFile(getBaseContext(), ".mp4");
+            File watermarked = TempUtil.createNewFile(getBaseContext(), ".mp4");
+            wm.beginWith(VideoUtil.createDownloadRequest(mClip.video, original, async))
+                    .then(VideoUtil.createWatermarkRequest(mClip, original, watermarked, async))
+                    .then(VideoUtil.createFastStartRequest(watermarked, fixed))
+                    .then(request)
+                    .enqueue();
+        } else {
+            wm.beginWith(VideoUtil.createDownloadRequest(mClip.video, fixed, async))
+                    .then(request)
+                    .enqueue();
+        }
+
+        if (async) {
+            Toast.makeText(getBaseContext(), R.string.message_downloading_async, Toast.LENGTH_SHORT).show();
+        } else {
+            KProgressHUD progress = KProgressHUD.create(getBaseContext())
+                    .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                    .setLabel(getString(R.string.progress_title))
+                    .setCancellable(false)
+                    .show();
+            wm.getWorkInfoByIdLiveData(request.getId())
+                    .observe(this, info -> {
+                        boolean ended = info.getState() == WorkInfo.State.CANCELLED
+                                || info.getState() == WorkInfo.State.FAILED
+                                || info.getState() == WorkInfo.State.SUCCEEDED;
+                        if (ended) {
+                            progress.dismiss();
+                        }
+
+                        if (info.getState() == WorkInfo.State.SUCCEEDED) {
+                            Toast.makeText(getBaseContext(), R.string.message_clip_downloaded, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }*/
+    }
+
 
     public void showSharingOptions(User user) {
         if (getResources().getBoolean(R.bool.sharing_sheet_enabled)) {
