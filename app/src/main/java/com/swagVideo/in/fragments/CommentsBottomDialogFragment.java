@@ -167,8 +167,8 @@ public class CommentsBottomDialogFragment extends BottomSheetDialogFragment impl
            this.dismiss();
        });
         RecyclerView comments = view.findViewById(R.id.comments);
-        LinearLayoutManager lm = new LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, true);
-        lm.setStackFromEnd(true);
+        LinearLayoutManager lm = new LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false);
+        lm.setStackFromEnd(false);
         comments.setLayoutManager(lm);
         CommentsAdapter adapter = new CommentsAdapter();
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -182,18 +182,24 @@ public class CommentsBottomDialogFragment extends BottomSheetDialogFragment impl
                 }
             }
         });
-        comments.setAdapter(new SlideInLeftAnimationAdapter(adapter));
+       /* comments.setAdapter(new SlideInLeftAnimationAdapter(adapter));
         OverScrollDecoratorHelper.setUpOverScroll(
-                comments, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+                comments, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);*/
+        comments.setAdapter((adapter));
+       /* OverScrollDecoratorHelper.setUpOverScroll(
+                comments, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);*/
         mModel1.comments.observe(getViewLifecycleOwner(), adapter::submitList);
+        View ivComment = view.findViewById(R.id.iv_comment);
         View empty = view.findViewById(R.id.empty);
         View loading = view.findViewById(R.id.loading);
         mModel1.state.observe(getViewLifecycleOwner(), state -> {
             List<?> list = mModel1.comments.getValue();
             if (state == LoadingState.LOADING) {
                 empty.setVisibility(View.GONE);
+                ivComment.setVisibility(View.GONE);
             } else {
                 empty.setVisibility(list == null || list.isEmpty() ? View.VISIBLE : View.GONE);
+                ivComment.setVisibility(list == null || list.isEmpty() ? View.VISIBLE : View.GONE);
             }
             loading.setVisibility(state == LoadingState.LOADING ? View.VISIBLE : View.GONE);
         });

@@ -33,7 +33,10 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.pixplicity.easyprefs.library.Prefs;
@@ -63,6 +66,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -142,15 +146,25 @@ public class ClipGridFragment extends Fragment {
             view.findViewById(R.id.header_back)
                     .setOnClickListener(v -> ((MainActivity) requireActivity()).popBackStack());
             TextView title = view.findViewById(R.id.header_title);
-            title.setText(mTitle);
+            //title.setText(mTitle);
+            title.setText("");
             view.findViewById(R.id.header_more).setVisibility(View.GONE);
+        }
+
+        MaterialCardView mcvHas = view.findViewById(R.id.mcvHas);
+        TextView tvUserName = view.findViewById(R.id.tvUserName);
+        if(mTitle != null){
+            mcvHas.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.bg_round_red_yellow_sheet3));
+            tvUserName.setText(mTitle.split("#")[1]);
+            mcvHas.setVisibility(View.VISIBLE);
+            tvUserName.setVisibility(View.VISIBLE);
         }
 
         RecyclerView clips = view.findViewById(R.id.clips);
         ClipGridAdapter adapter = new ClipGridAdapter();
         clips.setAdapter(new SlideInBottomAnimationAdapter(adapter));
-        //GridLayoutManager glm = new GridLayoutManager(requireContext(), 3);
-        LinearLayoutManager glm =new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false);
+        GridLayoutManager glm = new GridLayoutManager(requireContext(), 3);
+        //LinearLayoutManager glm =new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false);
         clips.setLayoutManager(glm);
         mModel1.clips.observe(getViewLifecycleOwner(), adapter::submitList);
         SwipeRefreshLayout swipe = view.findViewById(R.id.swipe);
@@ -343,24 +357,34 @@ public class ClipGridFragment extends Fragment {
         @Override
         @SuppressLint("SetTextI18n")
         public void onBindViewHolder(@NonNull ClipGridViewHolder holder, int position) {
-            Clip clip = getItem(position);
-            //noinspection ConstantConditions
-            holder.likes.setText(TextFormatUtil.toShortNumber(clip.likesCount));
-            holder.preview.setImageURI(clip.screenshot);
-            holder.itemView.setOnClickListener(v -> showClipPlayer(clip.id));
-            if (mParams.containsKey(ClipDataSource.PARAM_MINE)) {
-                holder._private.setVisibility(clip._private ? View.VISIBLE : View.GONE);
-                holder.disapproved.setVisibility(clip.approved ? View.GONE : View.VISIBLE);
-            } else {
-                holder._private.setVisibility(View.GONE);
-                holder.disapproved.setVisibility(View.GONE);
+            try {
+                Clip clip = getItem(position);
+                //noinspection ConstantConditions
+                holder.likes.setText(TextFormatUtil.toShortNumber(clip.likesCount));
+                holder.preview.setImageURI(clip.screenshot);
+                holder.itemView.setOnClickListener(v -> showClipPlayer(clip.id));
+
+                holder.tv_user_name.setText(clip.getUser().name);
+                holder.tvView.setText(clip.viewsCount + "");
+                Glide.with(getContext()).load(clip.getUser().photo).apply(new RequestOptions().circleCrop())
+                        .error(R.drawable.user).into(holder.iv_user);
+
+                if (mParams.containsKey(ClipDataSource.PARAM_MINE)) {
+                    holder._private.setVisibility(clip._private ? View.VISIBLE : View.GONE);
+                    holder.disapproved.setVisibility(clip.approved ? View.GONE : View.VISIBLE);
+                } else {
+                    holder._private.setVisibility(View.GONE);
+                    holder.disapproved.setVisibility(View.GONE);
+                }
+
+                holder.ivDelete.setVisibility(clip.user.me ? View.VISIBLE : View.GONE);
+
+                holder.ivDelete.setOnClickListener(v -> {
+                    confirmDeletion(clip.id);
+                });
+            }catch (Exception e){
+                e.printStackTrace();
             }
-
-            holder.ivDelete.setVisibility(clip.user.me ? View.VISIBLE : View.GONE);
-
-            holder.ivDelete.setOnClickListener(v -> {
-                confirmDeletion(clip.id);
-            });
         }
     }
 
@@ -404,8 +428,8 @@ public class ClipGridFragment extends Fragment {
         public SimpleDraweeView preview;
         public View _private;
         public View disapproved;
-        public TextView likes;
-        public ImageView ivDelete;
+        public TextView likes,tv_user_name,tvView;
+        public ImageView ivDelete,iv_user;
 
         public ClipGridViewHolder(@NonNull View root) {
             super(root);
@@ -414,6 +438,9 @@ public class ClipGridFragment extends Fragment {
             disapproved = root.findViewById(R.id.disapproved);
             likes = root.findViewById(R.id.likes);
             ivDelete = root.findViewById(R.id.iv_delete);
+            iv_user = root.findViewById(R.id.iv_user);
+            tv_user_name = root.findViewById(R.id.tv_user_name);
+            tvView = root.findViewById(R.id.tvView);
         }
     }
 

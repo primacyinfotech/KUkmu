@@ -46,7 +46,8 @@
     <string name="empty_articles">No news articles found to display.</string>
     <string name="empty_clips">No clips found to display.</string>
     <string name="title_comments">Comments</string>
-    <string name="empty_comments">No comments found to display.</string>
+   <!-- <string name="empty_comments">No comments found to display.</string>-->
+    <string name="empty_comments">Be the first to comment.</string>
     <string name="empty_conversations">No conversations found to display.</string>
     <string name="empty_followers">No followers found to display.</string>
     <string name="empty_followings">No followings found to display.</string>
@@ -60,6 +61,7 @@
     <string name="error_choose_file">Please choose a file.</string>
     <string name="error_field_required">This field is required.</string>
     <string name="error_internet">Please check your internet connection.</string>
+    <string name="error_something_wrong">Something went wrong!</string>
     <string name="error_invalid_otp">The code you entered is incorrect.</string>
     <string name="error_invalid_phone">The phone number entered is not valid.</string>
     <string name="error_server">Server returned an unexpected response.</string>
@@ -150,6 +152,7 @@
     <string name="permission_rationale_upload">To pick and upload video from Gallery, storage permission is needed.</string>
     <string name="phone_label">Phone</string>
     <string name="preview_label">Preview</string>
+    <string name="select_music">Select Music</string>
     <!--<string name="privacy_policy">Privacy Policy</string>-->
     <string name="privacy_policy">Data Policy</string>
     <string name="privacy_switch">Make this clip private?</string>
@@ -177,6 +180,7 @@
     <string name="scan_label">Scan</string>
     <string name="search_hint">Search user or hashtag…</string>
     <string name="search_song_hint">Search song or artist…</string>
+    <string name="search_music_hint">Search music</string>
     <string name="search_label">Search</string>
     <string name="see_all_label" formatted="false">See all %s clips</string>
     <string name="see_less_label">see less</string>
@@ -199,6 +203,7 @@
     <string name="song_label">Song</string>
     <string name="song_volume_label">Tune song volume</string>
     <string name="songs_label">Songs</string>
+    <string name="music_label">Select Music</string>
     <string name="sound_hint">Pick a song.</string>
     <string name="source_label">Source</string>
     <string name="speed_button">Speed</string>

@@ -262,7 +262,10 @@ public class MainActivity extends AppCompatActivity {
                 //args.putString("joinAs", "");
                 Fragment fr = new NearbyPlayerFragment();
                 fr.setArguments(args);
-                getSupportFragmentManager().beginTransaction().replace(R.id.host, fr).addToBackStack("dd").commit();
+                //getSupportFragmentManager().beginTransaction().replace(R.id.host, fr).addToBackStack("dd").commit();
+
+                NavController controller = findNavController();
+               controller.navigate(MainNavigationDirections.actionShowPlayerSlider(1,args));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -472,7 +475,8 @@ public class MainActivity extends AppCompatActivity {
         NavController controller = findNavController();
         ImageButton clips = findViewById(R.id.clips);
         clips.setOnClickListener(v ->
-                controller.navigate(MainNavigationDirections.actionShowClips()));
+                controller.navigate(MainNavigationDirections.actionShowClips())
+        );
         ImageButton discover = findViewById(R.id.discover);
        /* discover.setOnClickListener(v ->
                 controller.navigate(MainNavigationDirections.actionShowDiscover()));*/
@@ -481,8 +485,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, TrendingActivity.class);
                 // intent.putExtra("from","nearby");
-                startActivity(intent);
+                //startActivity(intent);
                 //finish();
+                controller.navigate(MainNavigationDirections.actionShowTranding());
             }
         });
         findViewById(R.id.record).setOnClickListener(v -> {
@@ -1184,6 +1189,10 @@ public class MainActivity extends AppCompatActivity {
         NavDirections direction = MainNavigationDirections.actionShowPlayerSlider(clip, params);
         findNavController().navigate(direction);
     }
+    public void showTrendingDetails(Bundle params) {
+        NavDirections direction = MainNavigationDirections.actionShowTrandingDetails(params);
+        findNavController().navigate(direction);
+    }
 
     public void showProfilePage(int user) {
         NavDirections direction = MainNavigationDirections.actionShowProfile(user);
@@ -1308,7 +1317,17 @@ public class MainActivity extends AppCompatActivity {
                         bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         share(clip, SharingTarget.FACEBOOK);
                     });
+            options.findViewById(R.id.facebookStory)
+                    .setOnClickListener(v -> {
+                        bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        share(clip, SharingTarget.FACEBOOK);
+                    });
             options.findViewById(R.id.instagram)
+                    .setOnClickListener(v -> {
+                        bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        share(clip, SharingTarget.INSTAGRAM);
+                    });
+            options.findViewById(R.id.instagramStory)
                     .setOnClickListener(v -> {
                         bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         share(clip, SharingTarget.INSTAGRAM);
@@ -1319,6 +1338,11 @@ public class MainActivity extends AppCompatActivity {
                         share(clip, SharingTarget.TWITTER);
                     });
             options.findViewById(R.id.whatsapp)
+                    .setOnClickListener(v -> {
+                        bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        share(clip, SharingTarget.WHATSAPP);
+                    });
+            options.findViewById(R.id.whatsappStatus)
                     .setOnClickListener(v -> {
                         bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         share(clip, SharingTarget.WHATSAPP);
@@ -1341,18 +1365,23 @@ public class MainActivity extends AppCompatActivity {
 
     @AfterPermissionGranted(SharedConstants.REQUEST_CODE_PERMISSIONS_DOWNLOAD)
     private void submitForDownload(Clip mClip) {
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mClip.video));
-        //request.addRequestHeader("Accept", "application/pdf");
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        try {
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(mClip.video));
+            //request.addRequestHeader("Accept", "application/pdf");
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
-        String filename = "VDO_" + mClip.id + "_" + System.currentTimeMillis() + ".mp4";
+            String filename = "VDO_" + mClip.id + "_" + System.currentTimeMillis() + ".mp4";
 // Save the file in the "Downloads" folder of SDCARD
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS,filename);
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
 
-        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        downloadManager.enqueue(request);
+            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            downloadManager.enqueue(request);
 
-        Toast.makeText(getBaseContext(), R.string.message_downloading_async, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), R.string.message_downloading_async, Toast.LENGTH_SHORT).show();
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
 
        /* WorkManager wm = WorkManager.getInstance(getBaseContext());
         File fixed = TempUtil.createNewFile(getBaseContext(), ".mp4");
@@ -1416,7 +1445,19 @@ public class MainActivity extends AppCompatActivity {
                         bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         shareLink(user, SharingTarget.FACEBOOK);
                     });
+
+            options.findViewById(R.id.facebookStory)
+                    .setOnClickListener(v -> {
+                        bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        shareLink(user, SharingTarget.FACEBOOK);
+                    });
             options.findViewById(R.id.instagram)
+                    .setOnClickListener(v -> {
+                        bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        shareLink(user, SharingTarget.INSTAGRAM);
+                    });
+
+            options.findViewById(R.id.instagramStory)
                     .setOnClickListener(v -> {
                         bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         shareLink(user, SharingTarget.INSTAGRAM);
@@ -1431,6 +1472,12 @@ public class MainActivity extends AppCompatActivity {
                         bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         shareLink(user, SharingTarget.WHATSAPP);
                     });
+            options.findViewById(R.id.whatsappStatus)
+                    .setOnClickListener(v -> {
+                        bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        shareLink(user, SharingTarget.WHATSAPP);
+                    });
+
             options.findViewById(R.id.other)
                     .setOnClickListener(v -> {
                         bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);

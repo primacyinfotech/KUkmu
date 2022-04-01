@@ -28,7 +28,8 @@
     <string name="google_client_id" translatable="false">763657788585-io54f60ssod7qa7reotdje4cob3a3c6q.apps.googleusercontent.com</string>-->
 
     <!--    <string name="google_client_id" translatable="false">763657788585-io54f60ssod7qa7reotdje4cob3a3c6q.apps.googleusercontent.com</string>-->
-    <string name="google_client_id" translatable="false">192253851143-n5dusq5fhtbctki9m9b0ba458ob14aln.apps.googleusercontent.com</string>
+    <!--<string name="google_client_id" translatable="false">192253851143-n5dusq5fhtbctki9m9b0ba458ob14aln.apps.googleusercontent.com</string>-->
+    <string name="google_client_id" translatable="false">192253851143-bd5ncb35ekpmqo364k6b7p8gf6o91qnr.apps.googleusercontent.com</string>
 
     <bool name="sms_login_enabled">true</bool>
     <string name="sms_login_service" translatable="false">firebase</string>

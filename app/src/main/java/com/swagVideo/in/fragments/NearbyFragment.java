@@ -49,7 +49,6 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.gson.Gson;
 import com.pixplicity.easyprefs.library.Prefs;
-import com.swagVideo.in.BuildConfig;
 import com.swagVideo.in.R;
 import com.swagVideo.in.SharedConstants;
 import com.swagVideo.in.activities.MainActivity;
@@ -57,11 +56,15 @@ import com.swagVideo.in.activities.NearByVideoActivity;
 import com.swagVideo.in.activities.PlacesActivity;
 import com.swagVideo.in.activities.UploadActivity;
 import com.swagVideo.in.adapter.RecyclerViewAdapter;
+import com.swagVideo.in.ads.BannerAdProvider;
+import com.swagVideo.in.data.ClipDataSource;
 import com.swagVideo.in.data.api.REST;
+import com.swagVideo.in.data.models.Advertisement;
 import com.swagVideo.in.data.models.Clip;
 import com.swagVideo.in.data.models.Song;
 import com.swagVideo.in.data.models.User;
 import com.swagVideo.in.pojo.NearBylIst;
+import com.swagVideo.in.utils.AdsUtil;
 import com.whygraphics.gifview.gif.GIFView;
 
 import org.json.JSONArray;
@@ -72,6 +75,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static com.swagVideo.in.data.StaticData.latitude;
 import static com.swagVideo.in.data.StaticData.longitude;
@@ -100,12 +104,20 @@ public class NearbyFragment extends Fragment {
     private Dialog myDialog;
     private TextView tvLocation, tvChange,tvNoVideo;
     public static Clip clipStat = new Clip();
-    ArrayList<Clip> myModelList = new ArrayList();
+    public static ArrayList<Clip> myModelList = new ArrayList();
     private ProgressBar loading;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    String ARG_ADS = "ads";
+    String ARG_PARAMS = "params";
+    String ARG_TITLE = "title";
+    String mTitle;
+    Bundle mParams;
+    BannerAdProvider mAd;
+    boolean mAds;
 
     public NearbyFragment() {
         // Required empty public constructor
@@ -156,7 +168,6 @@ public class NearbyFragment extends Fragment {
         viewAdapter = new RecyclerViewAdapter<>(getActivity(), R.layout.nearby_layout,nearBylIsts);
         viewAdapter.setMapper((viewHolder, source) -> {
 
-
             CircleImageView ivUser = (CircleImageView) viewHolder.getView(R.id.ivUser);
             TextView tvKm = (TextView) viewHolder.getView(R.id.tvKm);
             TextView tvUserName = (TextView) viewHolder.getView(R.id.tv_user_name);
@@ -169,22 +180,49 @@ public class NearbyFragment extends Fragment {
                     /*Intent intent = new Intent(getActivity(), MainActivity.class);
                     intent.putExtra("from","nearby");
                     startActivity(intent);*/
-                    clipStat.setVideo(source.video);
+                    /*clipStat.setVideo(source.video);
                     clipStat.setUser(source.getUser());
                     clipStat.setViewsCount(source.viewsCount);
                     clipStat.setLikesCount(source.likesCount);
                     clipStat.setCommentsCount(source.commentsCount);
+                    clipStat.setDescription(source.description);
                     clipStat.setComments(source.comments);
-                    clipStat.setSaved(source.saved);
+                    clipStat.setSaved(source.saved);*/
                     Intent intent = new Intent(getActivity(), MainActivity.class);
                     intent.putExtra("from","nearby");
-                    startActivity(intent);
+                   // startActivity(intent);
                     /*Bundle args = new Bundle();
                     //  args.putString("joinAs", "");
                     Fragment fr = new PlayerFragment();
                     fr.setArguments(args);
                     getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.host, fr).addToBackStack("dd").commit();*/
-                }
+
+
+                    Bundle arguments = getArguments();
+                    if (arguments != null) {
+                        mParams = arguments.getBundle(ARG_PARAMS);
+                        mTitle = arguments.getString(ARG_TITLE);
+                        boolean ads = requireArguments().getBoolean(ARG_ADS, false);
+                        if (mAds = ads) {
+                            Advertisement ad = AdsUtil.findByLocationAndType("grid", "banner");
+                            if (ad != null) {
+                                mAd = new BannerAdProvider(ad);
+                            }
+                        }
+                    }
+
+                    if (mParams == null) {
+                        mParams = new Bundle();
+                    }
+
+                    Set<String> languages = Prefs.getStringSet(SharedConstants.PREF_PREFERRED_LANGUAGES, null);
+                    if (languages != null && !languages.isEmpty()) {
+                        mParams.putStringArrayList(ClipDataSource.PARAM_LANGUAGES, new ArrayList<>(languages));
+                    }
+
+                   ((MainActivity) requireActivity()).showPlayerSlider(source.getId(), mParams);
+
+                     }
             });
 
             tvKm.setText(source.getKm()+" Km");
@@ -210,7 +248,7 @@ public class NearbyFragment extends Fragment {
                     List<Address> list =geocoder.getFromLocation(location.getLatitude(),location.getLongitude(),1);
                     if(list != null && list.size() >0){
                         Log.i("place", list.toString());
-                        tvLocation.setText(list.get(0).getLocality()+", "+list.get(0).getAdminArea());
+                        tvLocation.setText(list.get(0).getSubAdminArea()+", "+list.get(0).getAdminArea());
                        // Log.i("lati", lat+longi);
                       //  tvLocation.setText(list.get(0).);
 
@@ -361,12 +399,15 @@ public class NearbyFragment extends Fragment {
 
                            // nearBylIsts.add(new NearBylIst(distance(Double.parseDouble(lat), Double.parseDouble(longi), Double.valueOf(lat2), Double.valueOf(lon2)),jsonObject1.getString("video"),"https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/f19c6c63077653.5aa65266cb14d.gif"));
 //                            nearBylIsts.add(new NearBylIst(distance(Double.parseDouble(lat), Double.parseDouble(longi), Double.valueOf(lat2), Double.valueOf(lon2)),jsonObject1.getString("video"),"https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/f19c6c63077653.5aa65266cb14d.gif",jsonObject1.getString("video"), user,jsonObject1.getInt("views_count"), jsonObject1.getInt("likes_count"),jsonObject1.getInt("comments_count"),jsonObject1.getBoolean("comments"),jsonObject1.getBoolean("liked"), jsonObject1.getBoolean("saved")));
-                            nearBylIsts.add(new NearBylIst(distance( lat, longi, latU, lonU),jsonObject1.getString("video"),jsonObject1.getString("preview"),jsonObject1.getString("video"), user,jsonObject1.getInt("views_count"), jsonObject1.getInt("likes_count"),jsonObject1.getInt("comments_count"),jsonObject1.getBoolean("comments"),jsonObject1.getBoolean("liked"), jsonObject1.getBoolean("saved"),jsonObject1.getInt("id"),jsonObject1.getString("location")));
-
-
+                            nearBylIsts.add(new NearBylIst(distance( lat, longi, latU, lonU),jsonObject1.getString("video"),
+                                    jsonObject1.getString("preview"),jsonObject1.getString("video"), user,jsonObject1.getInt("views_count"),
+                                    jsonObject1.getInt("likes_count"),jsonObject1.getInt("comments_count"),jsonObject1.getBoolean("comments"),
+                                    jsonObject1.getBoolean("liked"), jsonObject1.getBoolean("saved"),jsonObject1.getInt("id"),
+                                    jsonObject1.getString("location"),jsonObject1.getString("description")));
                         }
                     }catch (Exception e){
                         e.printStackTrace();
+                        Toast.makeText(getActivity(), "Something went wrong!", Toast.LENGTH_SHORT).show();
                     }
                     if (nearBylIsts.size()==0){
                         rv.setVisibility(View.GONE);

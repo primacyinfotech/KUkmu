@@ -116,6 +116,22 @@
         app:popExitAnim="@anim/slide_out_right" />
 
     <action
+        android:id="@+id/action_show_tranding"
+        app:destination="@id/fragment_tranding"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+
+    <action
+        android:id="@+id/action_show_tranding_details"
+        app:destination="@id/fragment_tranding_tabs"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+
+    <action
         android:id="@+id/action_show_profile"
         app:destination="@id/fragment_profile"
         app:enterAnim="@anim/slide_in_right"
@@ -131,6 +147,15 @@
         app:popEnterAnim="@anim/slide_in_left"
         app:popExitAnim="@anim/slide_out_right"
         app:popUpTo="@+id/fragment_profile_self"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_show_nearby"
+        app:destination="@id/fragment_nearby"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right"
+        app:popUpTo="@+id/fragment_nearby"
         app:popUpToInclusive="true" />
 
     <action
@@ -330,6 +355,20 @@
         android:id="@+id/fragment_player_tabs"
         android:name="com.swagVideo.in.fragments.PlayerTabsFragment"
         tools:layout="@layout/fragment_player_tabs" />
+    <fragment
+        android:id="@+id/fragment_tranding"
+        android:name="com.swagVideo.in.fragments.TrendingFragment"
+        tools:layout="@layout/fragment_trending" />
+    <fragment
+        android:id="@+id/fragment_tranding_tabs"
+        android:name="com.swagVideo.in.fragments.TrendingTabsFragment"
+        tools:layout="@layout/fragment_trending_tabs" >
+        <argument
+            android:name="params"
+            app:argType="android.os.Bundle"
+            app:nullable="true"
+            app:defaultValue="@null" />
+    </fragment>
 
     <fragment
         android:id="@+id/fragment_profile"
@@ -349,8 +388,14 @@
         android:id="@+id/fragment_profile_self"
         android:name="com.swagVideo.in.fragments.ProfileFragment"
         tools:layout="@layout/fragment_profile">
-
         <deepLink app:uri=".*/links/profile" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_nearby"
+        android:name="com.swagVideo.in.fragments.NearbyPlayerFragment"
+        tools:layout="@layout/fragment_player">
+        <deepLink app:uri=".*/links/nerby" />
 
     </fragment>
 

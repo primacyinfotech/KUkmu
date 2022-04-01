@@ -185,22 +185,6 @@
                 android:textSize="@dimen/text_view_13" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/resend"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginLeft="10sp"
-            android:layout_marginTop="40sp"
-            android:layout_marginRight="40sp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_round_red_yellow_sheet2"
-            android:enabled="true"
-            android:text="Resend"
-            android:textColor="@color/quantum_white_100"
-            app:backgroundTint="@null"
-            app:iconGravity="textEnd"
-            tools:ignore="Button" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -267,7 +251,23 @@
                 app:backgroundTint="@null"
                 app:iconGravity="textEnd"
                 tools:ignore="ButtonStyle" />
+
         </LinearLayout>
+        <Button
+            android:id="@+id/resend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40sp"
+            android:layout_marginHorizontal="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_round_red_yellow_sheet2"
+            android:enabled="true"
+            android:text="Resend"
+            android:textColor="@color/quantum_white_100"
+            app:backgroundTint="@null"
+            app:iconGravity="textEnd"
+            tools:ignore="Button" />
+
 
     </LinearLayout>
 

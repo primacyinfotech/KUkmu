@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.Gson;
@@ -52,6 +53,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TrendingTabsFragment extends Fragment {
 
+    private static final String ARG_PARAMS = "params";
     private MainActivity.MainActivityViewModel mModel;
     private SliderView sliderView;
     private ImageView ivUser;
@@ -84,11 +86,29 @@ public class TrendingTabsFragment extends Fragment {
         tvUserName = view.findViewById(R.id.tvUserName);
         tvDesc = view.findViewById(R.id.tvDesc);
         tvView = view.findViewById(R.id.tvView);
+        MaterialCardView mcvHas = view.findViewById(R.id.mcvHas);
+        mcvHas.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.bg_round_red_yellow_sheet3));
 
-        heading = getArguments().getString("heading");
-        description = getArguments().getString("description");
-        image = getArguments().getString("image");
-        viewCount = getArguments().getString("viewCount");
+        View back = view.findViewById(R.id.header_back);
+        back.setOnClickListener(v -> {
+            requireActivity().onBackPressed();
+        });
+        TextView title = view.findViewById(R.id.header_title);
+        title.setText("Trending");
+        ImageButton extra = view.findViewById(R.id.header_extra);
+        extra.setVisibility(View.GONE);
+        View more = view.findViewById(R.id.header_more);
+        more.setVisibility(View.GONE);
+
+        Bundle params = requireArguments().getBundle(ARG_PARAMS);
+        if (params == null) {
+            params = new Bundle();
+        }
+
+        heading = params.getString("heading");
+        description = params.getString("description");
+        image = params.getString("image");
+        viewCount = params.getString("viewCount");
         Glide.with(this).load(image).fitCenter().error(R.mipmap.ic_app_icon).into(ivUser);
         tvUserName.setText(heading);
         tvDesc.setText(description);
@@ -98,15 +118,15 @@ public class TrendingTabsFragment extends Fragment {
 
         ViewPager2 pager = view.findViewById(R.id.pager);
         pager.setAdapter(new PlayerTabPagerAdapter(this));
-        pager.setCurrentItem(0, false);
-        TabLayout tabs = view.findViewById(R.id.tabs);
+        pager.setCurrentItem(0, true);
+       /* TabLayout tabs = view.findViewById(R.id.tabs);
       //  tabs.setBackgroundResource(android.R.color.transparent);
         new TabLayoutMediator(tabs, pager, (tab, position) -> {
             int text = position == 0
                     ? R.string.trending
                     : R.string.recent;
                 tab.setText(text);
-        }).attach();
+        }).attach();*/
     }
 
     public static TrendingTabsFragment newInstance() {
@@ -122,18 +142,18 @@ public class TrendingTabsFragment extends Fragment {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            if (position == 0) {
+          //  if (position == 0) {
 
                 return TrendFragment.newInstance(null, null);
-            }else {
+            /*}else {
                 return RecentTrendFragment.newInstance(null,null);
-            }
+            }*/
 
         }
 
         @Override
         public int getItemCount() {
-            return 2;
+            return 1;
         }
     }
 

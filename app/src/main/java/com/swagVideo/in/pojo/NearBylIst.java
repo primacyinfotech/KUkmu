@@ -37,7 +37,7 @@ public class NearBylIst {
     }
 
 
-    public NearBylIst(String km, String userImage, String gif, String video, User user, int viewsCount, int likesCount, int commentsCount, boolean comments, boolean liked, boolean saved, int id, @Nullable String location) {
+    public NearBylIst(String km, String userImage, String gif, String video, User user, int viewsCount, int likesCount, int commentsCount, boolean comments, boolean liked, boolean saved, int id, @Nullable String location,String description) {
         this.km = km;
         this.userImage = userImage;
         this.gif = gif;
@@ -51,6 +51,7 @@ public class NearBylIst {
         this.saved = saved;
         this.id = id;
         this.location = location;
+        this.description = description;
     }
     public NearBylIst(String km, String userImage, String gif, String video, User user, int viewsCount, int likesCount, int commentsCount, boolean comments, boolean liked, boolean saved, int id, @Nullable String location, String screenshot, String description) {
         this.km = km;

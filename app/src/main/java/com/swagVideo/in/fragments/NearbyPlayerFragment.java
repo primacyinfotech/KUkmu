@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -395,8 +396,10 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
         });
         if (like) {
             mClip.likesCount++;
+            mLikeCheckBox.setBackgroundResource(R.drawable.ic_button_like_filled);
         } else {
             mClip.likesCount--;
+            mLikeCheckBox.setBackgroundResource(R.drawable.ic_like);
         }
 
         mClip.liked(like);
@@ -461,10 +464,10 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
         });
         mPlay = view.findViewById(R.id.play);
         mProgressBar = view.findViewById(R.id.progress);
-        mProgressBar.setVisibility(
+        /*mProgressBar.setVisibility(
                 getResources().getBoolean(R.bool.player_progress_enabled)
                         ? View.VISIBLE
-                        : View.GONE);
+                        : View.GONE);*/
         mDuration = view.findViewById(R.id.duration);
         mDuration.setVisibility(
                 getResources().getBoolean(R.bool.player_duration_enabled)
@@ -496,7 +499,7 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
         });
         delete.setVisibility(mClip.user.me ? View.VISIBLE : View.GONE);
         TextView views = view.findViewById(R.id.views);
-        views.setText(TextFormatUtil.toShortNumber(mClip.viewsCount));
+        views.setText(TextFormatUtil.toShortNumber(mClip.viewsCount)+" views");
         TextView likes = view.findViewById(R.id.likes);
         likes.setText(TextFormatUtil.toShortNumber(mClip.likesCount));
         mLikeCheckBox = view.findViewById(R.id.like);
@@ -560,8 +563,12 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
         });
         View share = view.findViewById(R.id.share);
         if (getResources().getBoolean(R.bool.sharing_enabled)) {
-            share.setOnClickListener(v ->
-                    ((MainActivity)requireActivity()).showSharingOptions(mClip));
+            try {
+                share.setOnClickListener(v ->
+                        ((MainActivity) requireActivity()).showSharingOptions(mClip));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             share.setVisibility(View.VISIBLE);
         } else {
             share.setVisibility(View.GONE);
@@ -595,7 +602,7 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
 
         ImageView following = view.findViewById(R.id.following);
         following.setImageResource(
-                mClip.user.followed() ? R.drawable.ic_following : R.drawable.ic_follow2);
+                mClip.user.followed() ? R.drawable.ic_following : R.drawable.ic_follow_1);
         following.setOnClickListener(v -> {
             if (mModel2.isLoggedIn()) {
                 if (mModel2.isLoggedIn() && !mClip.user.me && !mClip.user.followed()) {
@@ -666,9 +673,9 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
         }
 
         TextView description = view.findViewById(R.id.description);
-        description.setText(mClip.description);
-        description.setVisibility(TextUtils.isEmpty(mClip.description) ? View.GONE : View.VISIBLE);
-        SocialSpanUtil.apply(description, mClip.description, this);
+        description.setText(mClip.getDescription());
+        description.setVisibility(TextUtils.isEmpty(mClip.getDescription()) ? View.GONE : View.VISIBLE);
+        SocialSpanUtil.apply(description, mClip.getDescription(), this);
         View tagsw = view.findViewById(R.id.tags_wrapper);
         ChipGroup tags = view.findViewById(R.id.tags);
         boolean chips = getResources().getBoolean(R.bool.tags_chips_enabled);
@@ -766,7 +773,16 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
     }
 
     private void showComments() {
-        ((MainActivity)requireActivity()).showCommentsPage(mClip.id);
+        try {
+           // ((MainActivity) requireActivity()).showCommentsPage(mClip.id);
+            CommentsBottomDialogFragment addPhotoBottomDialogFragment =
+                    CommentsBottomDialogFragment.newInstance(mClip.id);
+            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            addPhotoBottomDialogFragment.show(getActivity().getSupportFragmentManager(),
+                    "add_photo_dialog_fragment");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void showLikeAnimation() {
@@ -798,7 +814,11 @@ public class NearbyPlayerFragment extends Fragment implements AnalyticsListener,
     }
 
     private void showProfile(int user) {
-        ((MainActivity)requireActivity()).showProfilePage(user);
+        try {
+            ((MainActivity) requireActivity()).showProfilePage(user);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void startDiscAnimation() {

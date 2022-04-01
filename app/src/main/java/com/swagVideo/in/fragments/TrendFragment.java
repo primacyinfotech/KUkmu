@@ -23,19 +23,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.gson.Gson;
+import com.pixplicity.easyprefs.library.Prefs;
+import com.swagVideo.in.MainNavigationDirections;
 import com.swagVideo.in.R;
+import com.swagVideo.in.SharedConstants;
 import com.swagVideo.in.activities.MainActivity;
 import com.swagVideo.in.activities.TrendingActivity;
 import com.swagVideo.in.adapter.RecyclerViewAdapter;
+import com.swagVideo.in.ads.BannerAdProvider;
+import com.swagVideo.in.data.ClipDataSource;
 import com.swagVideo.in.data.api.REST;
+import com.swagVideo.in.data.models.Advertisement;
 import com.swagVideo.in.data.models.Clip;
 import com.swagVideo.in.data.models.User;
 import com.swagVideo.in.pojo.NearBylIst;
 import com.swagVideo.in.pojo.TrendingList;
+import com.swagVideo.in.utils.AdsUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,10 +53,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -92,6 +103,14 @@ public class TrendFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    String ARG_ADS = "ads";
+    String ARG_PARAMS = "params";
+    String ARG_TITLE = "title";
+    String mTitle;
+    Bundle mParams;
+    BannerAdProvider mAd;
+    boolean mAds;
+
     public TrendFragment() {
         // Required empty public constructor
     }
@@ -131,8 +150,8 @@ public class TrendFragment extends Fragment {
 
         initView(view);
 
-        //rv.setLayoutManager(new GridLayoutManager(getActivity(),3));
-        rv.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false));
+        rv.setLayoutManager(new GridLayoutManager(getActivity(),3));
+        //rv.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false));
         viewAdapter = new RecyclerViewAdapter<>(getActivity(), R.layout.trend_item_layout,trendingLists);
         viewAdapter.setMapper((viewHolder, source) -> {
 
@@ -147,25 +166,55 @@ public class TrendFragment extends Fragment {
                                 @Override
                                 public void onClick(View v) {
 
-                                    clipStat.setVideo(source.video);
+                                   /* clipStat.setVideo(source.video);
                                     clipStat.setUser(source.getUser());
                                     clipStat.setViewsCount(source.viewsCount);
                                     clipStat.setLikesCount(source.likesCount);
+                                    clipStat.setDescription(source.getDescription());
                                     clipStat.setCommentsCount(source.commentsCount);
                                     clipStat.setComments(source.comments);
                                     clipStat.setSaved(source.saved);
-//                                    Intent intent = new Intent(getActivity(), MainActivity.class);
-//                                    intent.putExtra("from","nearby");
-//                                    startActivity(intent);
-                                    replaceFragment(new NearbyPlayerFragment());
+                                    replaceFragment(new NearbyPlayerFragment());*/
+                                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                                    intent.putExtra("from","nearby");
+                                    // startActivity(intent);
 
+                                    try {
+
+                                        Bundle arguments = getArguments();
+                                        if (arguments != null) {
+                                            mParams = arguments.getBundle(ARG_PARAMS);
+                                            mTitle = arguments.getString(ARG_TITLE);
+                                            boolean ads = requireArguments().getBoolean(ARG_ADS, false);
+                                            if (mAds = ads) {
+                                                Advertisement ad = AdsUtil.findByLocationAndType("grid", "banner");
+                                                if (ad != null) {
+                                                    mAd = new BannerAdProvider(ad);
+                                                }
+                                            }
+                                        }
+
+                                        if (mParams == null) {
+                                            mParams = new Bundle();
+                                        }
+
+                                        Set<String> languages = Prefs.getStringSet(SharedConstants.PREF_PREFERRED_LANGUAGES, null);
+                                        if (languages != null && !languages.isEmpty()) {
+                                            mParams.putStringArrayList(ClipDataSource.PARAM_LANGUAGES, new ArrayList<>(languages));
+                                        }
+
+                                        ((MainActivity) requireActivity()).showPlayerSlider(source.getId(), mParams);
+
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
                                 }
                             });
 
              tvView.setText(String.valueOf(source.viewsCount));
              tvUserName.setText(String.valueOf(source.getUser().name));
              Glide.with(this).load(source.getGif()).fitCenter().error(R.mipmap.ic_app_icon).into(iv);
-             Glide.with(this).load(source.getUser().photo).fitCenter().error(R.drawable.user).into(ivUser);
+             Glide.with(this).load(source.getUser().photo).apply(new RequestOptions().circleCrop()).error(R.drawable.user).into(ivUser);
 
         });
         rv.setAdapter(viewAdapter);
@@ -220,7 +269,6 @@ public class TrendFragment extends Fragment {
     }
     public void replaceFragment (Fragment fragment){
         ((TrendingActivity) getContext()).replaceFragment(fragment);
-
     }
 
 }

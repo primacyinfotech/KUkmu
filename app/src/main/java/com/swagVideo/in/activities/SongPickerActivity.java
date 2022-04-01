@@ -97,10 +97,10 @@ public class SongPickerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_picker);
         ImageButton close = findViewById(R.id.header_back);
-        close.setImageResource(R.drawable.ic_baseline_close_24);
+       // close.setImageResource(R.drawable.ic_baseline_close_24);
         close.setOnClickListener(view -> finish());
         TextView title = findViewById(R.id.header_title);
-        title.setText(R.string.songs_label);
+        title.setText(R.string.music_label);
         findViewById(R.id.header_more).setVisibility(View.GONE);
         mModel = new ViewModelProvider(this).get(SongPickerActivityViewModel.class);
         TextInputLayout q = findViewById(R.id.q);
@@ -170,7 +170,8 @@ public class SongPickerActivity extends AppCompatActivity {
         View sheet = findViewById(R.id.song_preview_sheet);
         BottomSheetBehavior<View> bsb = BottomSheetBehavior.from(sheet);
         TextView title2 = sheet.findViewById(R.id.header_title);
-        title2.setText(R.string.preview_label);
+        //title2.setText(R.string.preview_label);
+        title2.setText(R.string.select_music);
         ImageButton close2 = sheet.findViewById(R.id.header_back);
         close2.setImageResource(R.drawable.ic_baseline_close_24);
         close2.setOnClickListener(v -> bsb.setState(BottomSheetBehavior.STATE_COLLAPSED));
@@ -276,7 +277,25 @@ public class SongPickerActivity extends AppCompatActivity {
                 .setRuntimeView(sheet.findViewById(R.id.start))
                 .setTotalTimeView(sheet.findViewById(R.id.end))
                 .play();
+
         TextView song2 = sheet.findViewById(R.id.song);
+        TextView artist = sheet.findViewById(R.id.artist);
+        TextView info = sheet.findViewById(R.id.info);
+        SimpleDraweeView icon = sheet.findViewById(R.id.icon);
+
+        if (!TextUtils.isEmpty(song.artist)) {
+            artist.setText(song.artist);
+            artist.setVisibility(View.VISIBLE);
+        }
+
+        info.setText(getDurationFormat(song.duration));
+
+        if (TextUtils.isEmpty(song.cover)) {
+            icon.setActualImageResource(R.drawable.image_placeholder);
+        } else {
+            icon.setImageURI(song.cover);
+        }
+
         song2.setText(song.title);
         sheet.findViewById(R.id.use)
                 .setOnClickListener(v -> closeWithSelection(song, file));
@@ -306,10 +325,14 @@ public class SongPickerActivity extends AppCompatActivity {
             }
 
             if (!TextUtils.isEmpty(song.artist)) {
-                information.add(song.artist);
+                //information.add(song.artist);
+                holder.artist.setText(song.artist);
+                holder.artist.setVisibility(View.VISIBLE);
             }
 
-            information.add(song.duration + "s");
+            //information.add(song.duration + "s");
+            information.add(getDurationFormat(song.duration));
+
             holder.info.setText(StringUtils.join(information, " | "));
             holder.itemView.setOnClickListener(view -> downloadSelectedSong(song));
         }
@@ -321,6 +344,17 @@ public class SongPickerActivity extends AppCompatActivity {
                     .inflate(R.layout.item_song, parent, false);
             return new SongViewHolder(view);
         }
+    }
+
+    private String getDurationFormat(int duration) {
+        int sec = duration % 60;
+        int min = (duration / 60)%60;
+        int hours = (duration/60)/60;
+
+        String strSec=(sec<10)?"0"+Integer.toString(sec):Integer.toString(sec);
+        String strmin=(min<10)?"0"+Integer.toString(min):Integer.toString(min);
+
+        return (strmin + ":" + strSec);
     }
 
     public static class SongPickerActivityViewModel extends ViewModel {
@@ -399,12 +433,14 @@ public class SongPickerActivity extends AppCompatActivity {
         public SimpleDraweeView icon;
         public TextView title;
         public TextView info;
+        public TextView artist;
 
         public SongViewHolder(@NonNull View root) {
             super(root);
             icon = root.findViewById(R.id.icon);
             title = root.findViewById(R.id.title);
             info = root.findViewById(R.id.info);
+            artist = root.findViewById(R.id.artist);
         }
     }
 }

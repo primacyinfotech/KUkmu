@@ -557,34 +557,38 @@ public class ProfileFragment extends Fragment implements SocialSpanUtil.OnSocial
     }
 
     private void showClipsGrid(User user) {
-        TabLayout tabs = getView().findViewById(R.id.tabs);
-        ViewPager2 pager = getView().findViewById(R.id.pager);
-        pager.setAdapter(new ProfilePagerAdapter(user, this));
-        new TabLayoutMediator(tabs, pager, (tab, position) -> {
-            switch (position) {
-                case 0:
-                    tab.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_video_library_24));
-                    //tab.setText("Library");
-                    break;
-                case 1:
-                    tab.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_favorite_24));
-                    //tab.setText("Favorite");
-                    break;
-                case 2:
-                    tab.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_book_24));
-                    //tab.setText("Book");
-                    break;
-                case 3:
-                    tab.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_warning_24));
-                    //tab.setText("Warning");
-                    break;
-            }
-        }).attach();
+        try {
+            TabLayout tabs = getView().findViewById(R.id.tabs);
+            ViewPager2 pager = getView().findViewById(R.id.pager);
+            pager.setAdapter(new ProfilePagerAdapter(user, this));
+            new TabLayoutMediator(tabs, pager, (tab, position) -> {
+                switch (position) {
+                    case 0:
+                        tab.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_video_library_24));
+                        //tab.setText("Library");
+                        break;
+                    case 1:
+                        tab.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_favorite_24));
+                        //tab.setText("Favorite");
+                        break;
+                    case 2:
+                        tab.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_book_24));
+                        //tab.setText("Book");
+                        break;
+                    case 3:
+                        tab.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_warning_24));
+                        //tab.setText("Warning");
+                        break;
+                }
+            }).attach();
 
-        SharedPreferences sharedpreferences = getActivity().getSharedPreferences(getResources().getString(R.string.my_preference), Context.MODE_PRIVATE);
-        boolean isDraft = sharedpreferences.getBoolean("isDraft", false);
-        if (isDraft)
-            pager.setCurrentItem(3);
+            SharedPreferences sharedpreferences = getActivity().getSharedPreferences(getResources().getString(R.string.my_preference), Context.MODE_PRIVATE);
+            boolean isDraft = sharedpreferences.getBoolean("isDraft", false);
+            if (isDraft)
+                pager.setCurrentItem(3);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void showRequestVerification() {

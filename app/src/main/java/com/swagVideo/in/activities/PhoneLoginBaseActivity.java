@@ -380,7 +380,7 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
                                 } catch (Exception ignore) {
                                 }
                             } else {
-                                message = R.string.error_internet;
+                                message = R.string.error_something_wrong;
                             }
 
                             if (message != -1) {
@@ -396,7 +396,7 @@ public class PhoneLoginBaseActivity extends AppCompatActivity {
                                 @Nullable Throwable t
                         ) {
                             Log.e(TAG, "Failed when trying to generate OTP.", t);
-                            Toast.makeText(PhoneLoginBaseActivity.this, R.string.error_internet, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PhoneLoginBaseActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
                             progress.dismiss();
                         }
                     });

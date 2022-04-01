@@ -19,6 +19,7 @@ import com.smarteist.autoimageslider.SliderView;
 import com.smarteist.autoimageslider.SliderViewAdapter;
 import com.swagVideo.in.R;
 import com.swagVideo.in.fragments.NearbyPlayerFragment;
+import com.swagVideo.in.fragments.PlayerSliderFragment;
 import com.swagVideo.in.fragments.TrendingFragment;
 import com.swagVideo.in.fragments.TrendingTabsFragment;
 import com.swagVideo.in.pojo.SliderItem;
@@ -58,10 +59,7 @@ public class TrendingActivity extends AppCompatActivity {
         });
 
         replaceFragment(trendingFragment);
-
     }
-
-
 
     @Override
     public void onBackPressed() {
@@ -70,13 +68,16 @@ public class TrendingActivity extends AppCompatActivity {
        // intent.putExtra("from","nearby");
         startActivity(intent);*/
         //finish();
-        if(currentFragment instanceof TrendingFragment){
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        Fragment activeFragment = fragments.get(fragments.size() - 1);
+        if(activeFragment instanceof TrendingFragment){
             finish();
-        }else  if(currentFragment instanceof NearbyPlayerFragment){
-            replaceFragment(new TrendingTabsFragment());
         }else {
+            //replaceFragment(new TrendingTabsFragment());
+            super.onBackPressed();
+        }/*else {
             replaceFragment(trendingFragment);
-        }
+        }*/
     }
     public void replaceFragment (Fragment fragment){
         String backStateName =  fragment.getClass().getName();

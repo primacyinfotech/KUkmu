@@ -51,11 +51,13 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/llFacebookStory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <ImageButton
+                        android:id="@+id/facebookStory"
                         android:layout_width="45dp"
                         android:layout_height="45dp"
                         android:layout_margin="5dp"
@@ -99,11 +101,13 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/llInstagramStory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <ImageButton
+                        android:id="@+id/instagramStory"
                         android:layout_width="45dp"
                         android:layout_height="45dp"
                         android:layout_margin="5dp"
@@ -147,11 +151,13 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/llWhatsappStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <ImageButton
+                        android:id="@+id/whatsappStatus"
                         android:layout_width="45dp"
                         android:layout_height="45dp"
                         android:layout_margin="5dp"

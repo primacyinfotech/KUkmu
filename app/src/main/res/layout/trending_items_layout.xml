@@ -6,14 +6,14 @@
     android:orientation="vertical">
 
     <FrameLayout
-        android:layout_width="110dp"
-        android:layout_height="170dp"
+        android:layout_width="115dp"
+        android:layout_height="140dp"
         android:layout_margin="1dp">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="5dp"
             app:cardCornerRadius="8dp">
 
             <ImageView
@@ -23,13 +23,12 @@
                 android:scaleType="fitXY"
                 android:src="@drawable/slidethree" />
 
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="bottom"
                 android:orientation="vertical"
-                android:paddingHorizontal="4dp">
+                android:paddingHorizontal="3dp">
 
                 <TextView
                     android:id="@+id/tv_title"
@@ -44,21 +43,23 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="4dp"
+                    android:paddingHorizontal="2dp"
+                    android:weightSum="2"
                     android:paddingVertical="2dp"
                     android:background="@drawable/transparent_bg_round_corner"
                     android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1.2"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:paddingVertical="2dp">
 
                     <ImageView
                         android:id="@+id/iv_user"
-                        android:layout_width="10dp"
-                        android:layout_height="10dp"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
                         android:layout_gravity="center_vertical"
                         android:src="@drawable/user" />
 
@@ -66,23 +67,24 @@
                         android:id="@+id/tv_user_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="5dp"
-                        android:gravity="center"
-                        android:maxLength="9"
+                        android:layout_marginLeft="3dp"
+                        android:gravity="center_vertical"
+                        android:maxLength="10"
                         android:text="User name"
+                        android:maxLines="1"
                         android:textColor="@color/emoji_white"
-                        android:textSize="9dp" />
+                        android:textSize="9sp" />
                 </LinearLayout>
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight=".8"
                     android:layout_height="wrap_content"
                     android:gravity="right"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="5dp"
                     android:paddingVertical="2dp">
                     <ImageView
-                        android:layout_width="10dp"
-                        android:layout_height="10dp"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
                         android:layout_gravity="center_vertical"
                         android:src="@drawable/ic_views" />
                     <TextView
@@ -92,9 +94,10 @@
                         android:layout_marginLeft="2dp"
                         android:gravity="center"
                         android:maxLength="3"
-                        android:text="9.9k"
+                        android:text="0"
+                        android:maxLines="1"
                         android:textColor="@color/emoji_white"
-                        android:textSize="9dp" />
+                        android:textSize="9sp" />
 
 
                 </LinearLayout>
