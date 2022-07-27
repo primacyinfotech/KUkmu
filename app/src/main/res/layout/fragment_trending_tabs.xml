@@ -131,6 +131,8 @@
         android:layout_marginRight="10dp"
         android:textColor="@color/emoji_white"/>
     <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/ll_contest"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/selected_tab_item"
@@ -142,6 +144,7 @@
             android:layout_height="50dp"
             android:src="@drawable/award"/>
         <TextView
+            android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Contest Alert!!"
@@ -157,6 +160,7 @@
                 android:text="This is the description.." />
 
             <TextView
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
@@ -188,13 +192,15 @@
                         android:layout_marginTop="2dp"
                         android:layout_toRightOf="@+id/iv_calendar"
                         android:text="End on" />
+
                     <TextView
-                        android:layout_below="@+id/tv_contest_end"
+                        android:id="@+id/tv_end_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/white"
+                        android:layout_below="@+id/tv_contest_end"
                         android:layout_toRightOf="@+id/iv_calendar"
-                        android:text="25th Dec, 2021"/>
+                        android:text=""
+                        android:textColor="@color/white" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="0dp"
@@ -210,19 +216,21 @@
                         android:src="@drawable/diamond" />
 
                     <TextView
-                        android:id="@+id/tv_prize"
+                        android:id="@+id/tv_prize_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:layout_toRightOf="@+id/iv_prize"
                         android:text="Wining prize" />
+
                     <TextView
-                        android:layout_below="@+id/tv_prize"
+                        android:id="@+id/tv_prize"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/white"
+                        android:layout_below="@+id/tv_prize_title"
                         android:layout_toRightOf="@+id/iv_prize"
-                        android:text="2501"/>
+                        android:text=""
+                        android:textColor="@color/white" />
                 </RelativeLayout>
             </LinearLayout>
     </LinearLayout>
@@ -254,6 +262,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true">
  <LinearLayout
+     android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

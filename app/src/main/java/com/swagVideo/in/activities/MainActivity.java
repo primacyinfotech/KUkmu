@@ -91,13 +91,17 @@ import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.pixplicity.easyprefs.library.Prefs;
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
 import com.smarteist.autoimageslider.SliderAnimations;
 import com.smarteist.autoimageslider.SliderView;
 import com.smarteist.autoimageslider.SliderViewAdapter;
+import com.swagVideo.in.adapter.GpsTracker;
 import com.swagVideo.in.adapter.TextGradient;
+import com.swagVideo.in.data.models.Slider;
 import com.swagVideo.in.fragments.NearbyFragment;
 import com.swagVideo.in.fragments.NearbyPlayerFragment;
 import com.swagVideo.in.fragments.PlayerFragment;
@@ -109,6 +113,7 @@ import com.thefinestartist.finestwebview.FinestWebView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -147,11 +152,14 @@ import com.swagVideo.in.utils.TempUtil;
 import com.swagVideo.in.utils.VideoUtil;
 import com.swagVideo.in.workers.DeviceTokenWorker;
 
+import okhttp3.ResponseBody;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -159,6 +167,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_USER = "user";
     private static final String TAG = "MainActivity";
 
+    private double currentLatitude;
+    private double currentLongitude;
+    private GpsTracker gpsTracker;
     private BannerAdProvider mAd;
     private CallbackManager mCallbackManager;
     private boolean mExitRequested;
@@ -604,6 +615,41 @@ public class MainActivity extends AppCompatActivity {
         setSlider();
     }
 
+    private void updateLocation() {
+
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(getResources().getString(R.string.server_url))
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            REST api = retrofit.create(REST.class);
+            try {
+
+                Call<ResponseBody> call = api.getUpdateLocation("Bearer " + Prefs.getString(SharedConstants.PREF_SERVER_TOKEN,""),String.valueOf(currentLatitude),String.valueOf(currentLongitude));
+                call.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        try {
+                            String body = response.body().string();
+                            //JSONObject jsonObject = new JSONObject(response.body().string());
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
+            } catch (Exception e) {
+                // progressDialog.dismiss();
+                e.printStackTrace();
+            }
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -662,7 +708,10 @@ public class MainActivity extends AppCompatActivity {
         if (!mModel.isLoggedIn() && mModel.state.getValue() != LoadingState.LOADING) {
             reloadProfile();
         }
-    }//check kor
+
+        if(getLocation())
+            updateLocation();
+    }
 
     @Override
     protected void onStart() {
@@ -962,7 +1011,7 @@ public class MainActivity extends AppCompatActivity {
         if (getResources().getBoolean(R.bool.sharing_links_enabled)) {
             shareLink(clip, target);
         } else {
-            File clips = new File(getFilesDir(), "clips");
+            File clips = new File(getBaseContext().getFilesDir(), "clips");
             if (!clips.exists() && !clips.mkdirs()) {
                 Log.w(TAG, "Could not create directory at " + clips);
             }
@@ -1026,7 +1075,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void shareVideoFile(Context context, File file, @Nullable SharingTarget target) {
         Log.v(TAG, "Showing sharing options for " + file);
-        Uri uri = FileProvider.getUriForFile(context, context.getPackageName(), file);
+        //Uri uri = FileProvider.getUriForFile(context, context.getPackageName(), file);
+        Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
         Intent intent = ShareCompat.IntentBuilder.from(this)
                 .setStream(uri)
                 .setText(getString(R.string.share_clip_text, context.getPackageName()))
@@ -1660,6 +1710,25 @@ public class MainActivity extends AppCompatActivity {
                 textViewDescription = itemView.findViewById(R.id.tv_auto_image_slider);
                 this.itemView = itemView;
             }
+        }
+    }
+
+    public boolean getLocation() {
+        gpsTracker = new GpsTracker(this);
+        if (gpsTracker.canGetLocation()) {
+            currentLatitude = gpsTracker.getLatitude();
+            currentLongitude = gpsTracker.getLongitude();
+
+            if(currentLatitude>0 && currentLongitude>0)
+                return true;
+            else {
+                getLocation();
+                return false;
+            }
+        } else {
+            gpsTracker.showSettingsAlert();
+
+            return false;
         }
     }
 }

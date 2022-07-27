@@ -37,7 +37,7 @@
             android:layout_width="0dp"
             android:layout_weight="2.9"
             android:background="@android:color/transparent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:hint="@string/composer_hint"
             android:imeOptions="actionSend"

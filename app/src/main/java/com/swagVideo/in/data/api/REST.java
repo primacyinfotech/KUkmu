@@ -225,7 +225,8 @@ public interface REST {
     @POST("clips/{id}/likes")
     Call<ResponseBody> likesLike(@Path("id") int clip);
 
-    @DELETE("clips/{id}/likes")
+    //@DELETE("clips/{id}/likes")
+    @GET("clips/{id}/likes")
     Call<ResponseBody> likesUnlike(@Path("id") int clip);
 
     @Headers({"Accept: application/json", "X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
@@ -457,4 +458,12 @@ public interface REST {
     @Headers({"Accept: application/json", "X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
     @GET("banner-list")
     Call<ResponseBody> getBannerList();
+
+    @Headers({"Accept: application/json", "X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
+    @POST("users-update-lat-long")
+    Call<ResponseBody> getUpdateLocation(@Header("Authorization") String token, @Query("latitude") String lat, @Query("longitude") String lng);
+
+    @Headers({"Accept: application/json", "X-API-Key: SVSHIOGVNTXT3ZHI3I85ZXWXAVVAHNX9"})
+    @GET("hashtags-clip-list")
+    Call<ResponseBody> getContest(@Query("hashtag") String hashtag);
 }

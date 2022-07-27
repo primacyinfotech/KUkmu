@@ -1,6 +1,7 @@
 package com.swagVideo.in.pojo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import com.swagVideo.in.data.models.ClipSection;
 import com.swagVideo.in.data.models.Song;
 import com.swagVideo.in.data.models.User;
@@ -23,6 +24,8 @@ public class NearBylIst {
     public int id;
     @Nullable
     public String location;
+    @SerializedName("contest_winner")
+    public String contestWinner;
     public List<User> mentions;
     public List<String> hashtags;
     @Nullable public Song song;
@@ -37,7 +40,7 @@ public class NearBylIst {
     }
 
 
-    public NearBylIst(String km, String userImage, String gif, String video, User user, int viewsCount, int likesCount, int commentsCount, boolean comments, boolean liked, boolean saved, int id, @Nullable String location,String description) {
+    public NearBylIst(String km, String userImage, String gif, String video, User user, int viewsCount, int likesCount, int commentsCount, boolean comments, boolean liked, boolean saved, int id, @Nullable String location,String description,String winner) {
         this.km = km;
         this.userImage = userImage;
         this.gif = gif;
@@ -52,8 +55,10 @@ public class NearBylIst {
         this.id = id;
         this.location = location;
         this.description = description;
+        this.contestWinner = winner;
     }
-    public NearBylIst(String km, String userImage, String gif, String video, User user, int viewsCount, int likesCount, int commentsCount, boolean comments, boolean liked, boolean saved, int id, @Nullable String location, String screenshot, String description) {
+    public NearBylIst(String km, String userImage, String gif, String video, User user, int viewsCount,
+                      int likesCount, int commentsCount, boolean comments, boolean liked, boolean saved, int id, @Nullable String location, String screenshot, String description, String winner) {
         this.km = km;
         this.userImage = userImage;
         this.gif = gif;
@@ -69,6 +74,7 @@ public class NearBylIst {
         this.location = location;
         this.screenshot = screenshot;
         this.description = description;
+        this.contestWinner = winner;
     }
 
     public String getKm() {
@@ -321,5 +327,13 @@ public class NearBylIst {
 
     public void setMentions(List<User> mentions) {
         this.mentions = mentions;
+    }
+
+    public String getContestWinner() {
+        return contestWinner;
+    }
+
+    public void setContestWinner(String contestWinner) {
+        this.contestWinner = contestWinner;
     }
 }

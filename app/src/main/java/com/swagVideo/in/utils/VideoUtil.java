@@ -66,7 +66,8 @@ final public class VideoUtil {
     public static OneTimeWorkRequest createWatermarkRequest(Clip clip, File input, File output, boolean notification) {
         Data data = new Data.Builder()
                 .putString(WatermarkWorker.KEY_INPUT, input.getAbsolutePath())
-                .putString(WatermarkWorker.KEY_USERNAME, '@' + clip.user.username)
+                //.putString(WatermarkWorker.KEY_USERNAME, '@' + clip.user.username)
+                .putString(WatermarkWorker.KEY_USERNAME, "Swagvideo")
                 .putString(WatermarkWorker.KEY_OUTPUT, output.getAbsolutePath())
                 .putBoolean(WatermarkWorker.KEY_NOTIFICATION, notification)
                 .build();

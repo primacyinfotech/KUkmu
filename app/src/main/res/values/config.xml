@@ -116,7 +116,7 @@
 
     <bool name="sharing_enabled">true</bool>
     <bool name="sharing_async_enabled">true</bool>
-    <bool name="sharing_links_enabled">true</bool>
+    <bool name="sharing_links_enabled">false</bool>
     <string name="sharing_links_domain" translatable="false">swagvideo.page.link</string>
     <bool name="sharing_sheet_enabled">true</bool>
     <bool name="sharing_watermark_enabled">true</bool>
