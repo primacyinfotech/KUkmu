@@ -379,7 +379,14 @@ public class TrendingFragment extends Fragment {
                                 JSONObject jsonObject2 = new JSONObject(jsonArrayOther.getString(j));
                                 User user = new User();
                                 user = (User) gson.fromJson(jsonObject2.getJSONObject("user").toString(), User.class);
-                                myModelList.add(new NearBylIst("", jsonObject2.getString("video"), jsonObject2.getString("preview"), jsonObject2.getString("video"), user, jsonObject2.getInt("views_count"), jsonObject2.getInt("likes_count"), jsonObject2.getInt("comments_count"), jsonObject2.getBoolean("comments"), jsonObject2.getBoolean("liked"), jsonObject2.getBoolean("saved"), jsonObject2.getInt("id"), jsonObject2.getString("location"), jsonObject2.getString("screenshot"), jsonObject2.getString("description")));
+                                myModelList.add(new NearBylIst("", jsonObject2.getString("video"),
+                                        jsonObject2.getString("preview"), jsonObject2.getString("video"),
+                                        user, jsonObject2.getInt("views_count"), jsonObject2.getInt("likes_count"),
+                                        jsonObject2.getInt("comments_count"), jsonObject2.getBoolean("comments"),
+                                        jsonObject2.getBoolean("liked"), jsonObject2.getBoolean("saved"),
+                                        jsonObject2.getInt("id"), jsonObject2.getString("location"),
+                                        jsonObject2.getString("screenshot"), jsonObject2.getString("description")
+                                        , jsonObject2.getString("contest_winner")));
                             }
                             JSONArray jsonArrayLatest = jsonObject1.getJSONArray("letestclip");
                             for (int j = 0; j < jsonArrayLatest.length(); j++) {
@@ -387,7 +394,7 @@ public class TrendingFragment extends Fragment {
                                 JSONObject jsonObject2 = new JSONObject(jsonArrayLatest.getString(j));
                                 User user = new User();
                                 user = (User) gson.fromJson(jsonObject2.getJSONObject("user").toString(), User.class);
-                                myModelLatestList.add(new NearBylIst("", jsonObject2.getString("video"), jsonObject2.getString("preview"), jsonObject2.getString("video"), user, jsonObject2.getInt("views_count"), jsonObject2.getInt("likes_count"), jsonObject2.getInt("comments_count"), jsonObject2.getBoolean("comments"), jsonObject2.getBoolean("liked"), jsonObject2.getBoolean("saved"), jsonObject2.getInt("id"), jsonObject2.getString("location"), jsonObject2.getString("screenshot"), jsonObject2.getString("description")));
+                                myModelLatestList.add(new NearBylIst("", jsonObject2.getString("video"), jsonObject2.getString("preview"), jsonObject2.getString("video"), user, jsonObject2.getInt("views_count"), jsonObject2.getInt("likes_count"), jsonObject2.getInt("comments_count"), jsonObject2.getBoolean("comments"), jsonObject2.getBoolean("liked"), jsonObject2.getBoolean("saved"), jsonObject2.getInt("id"), jsonObject2.getString("location"), jsonObject2.getString("screenshot"), jsonObject2.getString("description"), ""));
                             }
                             //nearBylIsts.add(new TrendingList(hashtag, myModelList));
                             nearBylIsts.add(new TrendingList(hashtag, tagImage, tagDesc, totalViewCount, myModelList, myModelLatestList));

@@ -1,11 +1,11 @@
 package com.swagVideo.in.fragments;
 
-import android.Manifest;
+import static com.swagVideo.in.fragments.TrendingFragment.trendingLists;
+
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -16,20 +16,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
-import com.google.gson.Gson;
 import com.pixplicity.easyprefs.library.Prefs;
-import com.swagVideo.in.MainNavigationDirections;
 import com.swagVideo.in.R;
 import com.swagVideo.in.SharedConstants;
 import com.swagVideo.in.activities.MainActivity;
@@ -37,49 +34,18 @@ import com.swagVideo.in.activities.TrendingActivity;
 import com.swagVideo.in.adapter.RecyclerViewAdapter;
 import com.swagVideo.in.ads.BannerAdProvider;
 import com.swagVideo.in.data.ClipDataSource;
-import com.swagVideo.in.data.api.REST;
 import com.swagVideo.in.data.models.Advertisement;
 import com.swagVideo.in.data.models.Clip;
-import com.swagVideo.in.data.models.User;
 import com.swagVideo.in.pojo.NearBylIst;
-import com.swagVideo.in.pojo.TrendingList;
 import com.swagVideo.in.utils.AdsUtil;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.swagVideo.in.activities.TrendingActivity.trendingTabsFragment;
-import static com.swagVideo.in.data.StaticData.placeName;
-import static com.swagVideo.in.fragments.NearbyFragment.clipStat;
-import static com.swagVideo.in.fragments.TrendingFragment.trendingLists;
-
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link TrendFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class TrendFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
@@ -146,25 +112,26 @@ public class TrendFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_trend, container, false);
+        View view = inflater.inflate(R.layout.fragment_trend, container, false);
 
         initView(view);
 
-        rv.setLayoutManager(new GridLayoutManager(getActivity(),3));
+        rv.setLayoutManager(new GridLayoutManager(getActivity(), 3));
         //rv.setLayoutManager(new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false));
-        viewAdapter = new RecyclerViewAdapter<>(getActivity(), R.layout.trend_item_layout,trendingLists);
+        viewAdapter = new RecyclerViewAdapter<>(getActivity(), R.layout.trend_item_layout, trendingLists);
         viewAdapter.setMapper((viewHolder, source) -> {
 
             ImageView iv = (ImageView) viewHolder.getView(R.id.iv);
             TextView tvView = (TextView) viewHolder.getView(R.id.tvView);
             ImageView ivUser = (ImageView) viewHolder.getView(R.id.iv_user);
+            ImageView ivWinner = (ImageView) viewHolder.getView(R.id.iv_winner);
             TextView tvUserName = (TextView) viewHolder.getView(R.id.tv_user_name);
 
 //            tvView.setText(source.getViewsCount());
 
-                            iv.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
+            iv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
                                    /* clipStat.setVideo(source.video);
                                     clipStat.setUser(source.getUser());
@@ -175,46 +142,49 @@ public class TrendFragment extends Fragment {
                                     clipStat.setComments(source.comments);
                                     clipStat.setSaved(source.saved);
                                     replaceFragment(new NearbyPlayerFragment());*/
-                                    Intent intent = new Intent(getActivity(), MainActivity.class);
-                                    intent.putExtra("from","nearby");
-                                    // startActivity(intent);
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    intent.putExtra("from", "nearby");
+                    // startActivity(intent);
 
-                                    try {
+                    try {
 
-                                        Bundle arguments = getArguments();
-                                        if (arguments != null) {
-                                            mParams = arguments.getBundle(ARG_PARAMS);
-                                            mTitle = arguments.getString(ARG_TITLE);
-                                            boolean ads = requireArguments().getBoolean(ARG_ADS, false);
-                                            if (mAds = ads) {
-                                                Advertisement ad = AdsUtil.findByLocationAndType("grid", "banner");
-                                                if (ad != null) {
-                                                    mAd = new BannerAdProvider(ad);
-                                                }
-                                            }
-                                        }
-
-                                        if (mParams == null) {
-                                            mParams = new Bundle();
-                                        }
-
-                                        Set<String> languages = Prefs.getStringSet(SharedConstants.PREF_PREFERRED_LANGUAGES, null);
-                                        if (languages != null && !languages.isEmpty()) {
-                                            mParams.putStringArrayList(ClipDataSource.PARAM_LANGUAGES, new ArrayList<>(languages));
-                                        }
-
-                                        ((MainActivity) requireActivity()).showPlayerSlider(source.getId(), mParams);
-
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
+                        Bundle arguments = getArguments();
+                        if (arguments != null) {
+                            mParams = arguments.getBundle(ARG_PARAMS);
+                            mTitle = arguments.getString(ARG_TITLE);
+                            boolean ads = requireArguments().getBoolean(ARG_ADS, false);
+                            if (mAds = ads) {
+                                Advertisement ad = AdsUtil.findByLocationAndType("grid", "banner");
+                                if (ad != null) {
+                                    mAd = new BannerAdProvider(ad);
                                 }
-                            });
+                            }
+                        }
 
-             tvView.setText(String.valueOf(source.viewsCount));
-             tvUserName.setText(String.valueOf(source.getUser().name));
-             Glide.with(this).load(source.getGif()).fitCenter().error(R.mipmap.ic_app_icon).into(iv);
-             Glide.with(this).load(source.getUser().photo).apply(new RequestOptions().circleCrop()).error(R.drawable.user).into(ivUser);
+                        if (mParams == null) {
+                            mParams = new Bundle();
+                        }
+
+                        Set<String> languages = Prefs.getStringSet(SharedConstants.PREF_PREFERRED_LANGUAGES, null);
+                        if (languages != null && !languages.isEmpty()) {
+                            mParams.putStringArrayList(ClipDataSource.PARAM_LANGUAGES, new ArrayList<>(languages));
+                        }
+
+                        ((MainActivity) requireActivity()).showPlayerSlider(source.getId(), mParams);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            if (source.contestWinner != null && source.contestWinner.equals("1"))
+            ivWinner.setVisibility(View.VISIBLE);
+            tvView.setText(String.valueOf(source.viewsCount));
+            tvView.setText(String.valueOf(source.viewsCount));
+            tvUserName.setText(String.valueOf(source.getUser().name));
+            Glide.with(this).load(source.getGif()).fitCenter().error(R.mipmap.ic_app_icon).into(iv);
+            Glide.with(this).load(source.getUser().photo).apply(new RequestOptions().circleCrop()).error(R.drawable.user).into(ivUser);
 
         });
         rv.setAdapter(viewAdapter);
@@ -222,7 +192,7 @@ public class TrendFragment extends Fragment {
 
         geocoder = new Geocoder(getActivity(), Locale.getDefault());
 
-        locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -230,11 +200,11 @@ public class TrendFragment extends Fragment {
                     lat = String.valueOf(location.getLatitude());
                     longi = String.valueOf(location.getLongitude());
                     // Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
-                    List<Address> list =geocoder.getFromLocation(location.getLatitude(),location.getLongitude(),1);
-                    if(list != null && list.size() >0){
+                    List<Address> list = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                    if (list != null && list.size() > 0) {
                         Log.i("place", list.toString());
-                        Log.i("lati", lat+longi);
-                      //  tvLocation.setText(list.get(0).);
+                        Log.i("lati", lat + longi);
+                        //  tvLocation.setText(list.get(0).);
 
                     }
                 } catch (IOException e) {
@@ -267,7 +237,8 @@ public class TrendFragment extends Fragment {
         rv = view.findViewById(R.id.rv);
 
     }
-    public void replaceFragment (Fragment fragment){
+
+    public void replaceFragment(Fragment fragment) {
         ((TrendingActivity) getContext()).replaceFragment(fragment);
     }
 

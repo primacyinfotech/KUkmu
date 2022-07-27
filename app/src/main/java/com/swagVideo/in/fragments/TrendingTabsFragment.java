@@ -1,5 +1,7 @@
 package com.swagVideo.in.fragments;
 
+import static com.swagVideo.in.fragments.NearbyFragment.clipStat;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -9,29 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
-import com.smarteist.autoimageslider.SliderAnimations;
-import com.smarteist.autoimageslider.SliderView;
-import com.smarteist.autoimageslider.SliderViewAdapter;
-import com.swagVideo.in.R;
-import com.swagVideo.in.activities.MainActivity;
-import com.swagVideo.in.data.ClipDataSource;
-import com.swagVideo.in.data.api.REST;
-import com.swagVideo.in.data.models.Clip;
-import com.swagVideo.in.data.models.Slider;
-import com.swagVideo.in.pojo.SliderItem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,9 +22,26 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import static com.swagVideo.in.fragments.NearbyFragment.clipStat;
+import com.bumptech.glide.Glide;
+import com.google.android.material.card.MaterialCardView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
+import com.smarteist.autoimageslider.SliderAnimations;
+import com.smarteist.autoimageslider.SliderView;
+import com.smarteist.autoimageslider.SliderViewAdapter;
+import com.swagVideo.in.R;
+import com.swagVideo.in.activities.MainActivity;
+import com.swagVideo.in.data.api.REST;
+import com.swagVideo.in.data.models.Clip;
+import com.swagVideo.in.data.models.Slider;
+import com.swagVideo.in.pojo.SliderItem;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -62,7 +61,9 @@ public class TrendingTabsFragment extends Fragment {
     private TextView tvView;
     private TrendingTabsFragment.SliderAdapterExample adapter;
     private ArrayList<SliderItem> sliderItems = new ArrayList<>();
-    private String image,description,heading,viewCount;
+    private String image, description, heading, viewCount, hashtagsContest = "";
+    private LinearLayout llContest;
+    private TextView tvTitle, tvContestDesc, tvEndDate, tvPrize;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,6 +87,11 @@ public class TrendingTabsFragment extends Fragment {
         tvUserName = view.findViewById(R.id.tvUserName);
         tvDesc = view.findViewById(R.id.tvDesc);
         tvView = view.findViewById(R.id.tvView);
+        llContest = view.findViewById(R.id.ll_contest);
+        tvTitle = view.findViewById(R.id.tv_title);
+        tvContestDesc = view.findViewById(R.id.tvContestDesc);
+        tvEndDate = view.findViewById(R.id.tv_end_date);
+        tvPrize = view.findViewById(R.id.tv_prize);
         MaterialCardView mcvHas = view.findViewById(R.id.mcvHas);
         mcvHas.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.bg_round_red_yellow_sheet3));
 
@@ -115,6 +121,7 @@ public class TrendingTabsFragment extends Fragment {
         tvView.setText(viewCount);
 
         getSliderImage();
+        getContest();
 
         ViewPager2 pager = view.findViewById(R.id.pager);
         pager.setAdapter(new PlayerTabPagerAdapter(this));
@@ -142,9 +149,9 @@ public class TrendingTabsFragment extends Fragment {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-          //  if (position == 0) {
+            //  if (position == 0) {
 
-                return TrendFragment.newInstance(null, null);
+            return TrendFragment.newInstance(null, null);
             /*}else {
                 return RecentTrendFragment.newInstance(null,null);
             }*/
@@ -195,9 +202,65 @@ public class TrendingTabsFragment extends Fragment {
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                   t.printStackTrace();
+                    t.printStackTrace();
                 }
             });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getContest() {
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getResources().getString(R.string.server_url))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        REST api = retrofit.create(REST.class);
+        try {
+            Call<ResponseBody> call = api.getContest(heading.toLowerCase());
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    try {
+                        String body = String.valueOf(response.body());
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONObject jsonObjectData = jsonObject.getJSONObject("data");
+                        JSONArray jaList = jsonObjectData.getJSONArray("list");
+                        JSONObject joData = (JSONObject) jaList.get(0);
+                        hashtagsContest = joData.getString("hashtags_contest");
+                        JSONObject contestDetails = joData.getJSONObject("contest_det");
+
+                        if (hashtagsContest.toLowerCase().equals("on"))
+                            setContest(contestDetails.getString("title"), contestDetails.getString("description"),
+                                    contestDetails.getString("winning_prize"), contestDetails.getString("start_date"),
+                                    contestDetails.getString("end_date"));
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setContest(String title, String description, String winning_prize, String start_date, String end_date) {
+        try {
+            llContest.setVisibility(View.VISIBLE);
+            tvTitle.setText(title);
+            tvContestDesc.setText(description);
+            tvEndDate.setText(end_date);
+            tvPrize.setText(winning_prize);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -206,14 +269,15 @@ public class TrendingTabsFragment extends Fragment {
     private void setSlider(ArrayList<Slider> sliderList) {
         sliderItems.clear();
 
-        for (int i=0; i<sliderList.size(); i++) {
+        for (int i = 0; i < sliderList.size(); i++) {
             sliderItems.add(new SliderItem(sliderList.get(i).getName(), sliderList.get(i).getImage()));
        /* sliderItems.add(new SliderItem("Text Here", R.drawable.slideone));
         sliderItems.add(new SliderItem("Text Here", R.drawable.slidetwo));
         sliderItems.add(new SliderItem("Text Here", R.drawable.slidethree));*/
-        };
+        }
+        ;
 
-        adapter = new TrendingTabsFragment.SliderAdapterExample(getActivity(),sliderItems);
+        adapter = new TrendingTabsFragment.SliderAdapterExample(getActivity(), sliderItems);
         sliderView.setSliderAdapter(adapter);
         sliderView.setIndicatorAnimation(IndicatorAnimationType.WORM); //set indicator animation by using SliderLayout.IndicatorAnimations. :WORM or THIN_WORM or COLOR or DROP or FILL or NONE or SCALE or SCALE_DOWN or SLIDE and SWAP!!
         sliderView.setSliderTransformAnimation(SliderAnimations.SIMPLETRANSFORMATION);
@@ -224,6 +288,7 @@ public class TrendingTabsFragment extends Fragment {
         sliderView.setAutoCycle(true);
         sliderView.startAutoCycle();
     }
+
     public class SliderAdapterExample extends
             SliderViewAdapter<TrendingTabsFragment.SliderAdapterExample.SliderAdapterVH> {
 
@@ -249,6 +314,7 @@ public class TrendingTabsFragment extends Fragment {
             this.mSliderItems.add(sliderItem);
             notifyDataSetChanged();
         }
+
         @Override
         public TrendingTabsFragment.SliderAdapterExample.SliderAdapterVH onCreateViewHolder(ViewGroup parent) {
             View inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_slider_layout_item, null);
@@ -282,6 +348,7 @@ public class TrendingTabsFragment extends Fragment {
             //slider view count could be dynamic size
             return mSliderItems.size();
         }
+
         class SliderAdapterVH extends SliderViewAdapter.ViewHolder {
 
             View itemView;

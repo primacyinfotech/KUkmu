@@ -403,7 +403,7 @@ public class NearbyFragment extends Fragment {
                                     jsonObject1.getString("preview"),jsonObject1.getString("video"), user,jsonObject1.getInt("views_count"),
                                     jsonObject1.getInt("likes_count"),jsonObject1.getInt("comments_count"),jsonObject1.getBoolean("comments"),
                                     jsonObject1.getBoolean("liked"), jsonObject1.getBoolean("saved"),jsonObject1.getInt("id"),
-                                    jsonObject1.getString("location"),jsonObject1.getString("description")));
+                                    jsonObject1.getString("location"),jsonObject1.getString("description"),""));
                         }
                     }catch (Exception e){
                         e.printStackTrace();

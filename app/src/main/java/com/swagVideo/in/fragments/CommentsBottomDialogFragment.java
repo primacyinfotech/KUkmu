@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -23,6 +25,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
@@ -33,10 +36,12 @@ import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -63,6 +68,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jp.wasabeef.recyclerview.adapters.SlideInLeftAnimationAdapter;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
@@ -116,6 +122,7 @@ public class CommentsBottomDialogFragment extends BottomSheetDialogFragment impl
                 }
             }
         });
+
     }
 
     @Nullable
@@ -170,6 +177,25 @@ public class CommentsBottomDialogFragment extends BottomSheetDialogFragment impl
         LinearLayoutManager lm = new LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false);
         lm.setStackFromEnd(false);
         comments.setLayoutManager(lm);
+       /* LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity()) {
+            @Override
+            public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
+                LinearSmoothScroller smoothScroller = new LinearSmoothScroller(getActivity()) {
+
+                    private static final float SPEED = 300f;
+
+                    @Override
+                    protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+                        return SPEED / displayMetrics.densityDpi;
+                    }
+
+                };
+                smoothScroller.setTargetPosition(position);
+                startSmoothScroll(smoothScroller);
+            }
+        };
+        comments.setLayoutManager(layoutManager);*/
+
         CommentsAdapter adapter = new CommentsAdapter();
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
 
@@ -186,6 +212,33 @@ public class CommentsBottomDialogFragment extends BottomSheetDialogFragment impl
         OverScrollDecoratorHelper.setUpOverScroll(
                 comments, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);*/
         comments.setAdapter((adapter));
+        /*comments.setOnTouchListener(new RecyclerView.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Disallow NestedScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        // Allow NestedScrollView to intercept touch events.
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        break;
+                }
+
+                // Handle RecyclerView touch events.
+                v.onTouchEvent(event);
+                return true;
+            }
+        });*/
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) view.getParent()).getLayoutParams();
+        CoordinatorLayout.Behavior behavior = params.getBehavior();
+        View parent = (View) view.getParent();
+        ((BottomSheetBehavior) behavior).setFitToContents(true);
+        BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(parent);
+        bottomSheetBehavior.setHideable(false);
        /* OverScrollDecoratorHelper.setUpOverScroll(
                 comments, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);*/
         mModel1.comments.observe(getViewLifecycleOwner(), adapter::submitList);
@@ -422,7 +475,7 @@ public class CommentsBottomDialogFragment extends BottomSheetDialogFragment impl
                 }
             });
 
-            holder.llLike.setOnClickListener(v -> {
+            holder.ivLike.setOnClickListener(v -> {
                 likeUnlike(comment.id,comment.user.id, holder.like, holder.ivLike);
             });
 
@@ -476,13 +529,14 @@ public class CommentsBottomDialogFragment extends BottomSheetDialogFragment impl
                     @Nullable Response<ResponseBody> response
             ) {
                 try {
-                    JSONObject jsonObject = new JSONObject(response.body().string());
+                    String jsonOject = (response.body().string());
                     int code = response != null ? response.code() : -1;
                     Log.v(TAG, "Updating like/unlike returned " + code + '.');
                     Glide.with(getActivity()).load(R.drawable.ic_button_like_filled).error(R.drawable.ic_like).into(ivLike);
                     int likeCount = Integer.parseInt(tvLike.getText().toString().trim()) + 1;
                     tvLike.setText(String.valueOf(likeCount));
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 

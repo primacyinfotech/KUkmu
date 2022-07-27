@@ -788,6 +788,7 @@ public class PlayerFragment extends Fragment implements AnalyticsListener, Visib
         addPhotoBottomDialogFragment.show(getActivity().getSupportFragmentManager(),
                 "add_photo_dialog_fragment");
 
+
     }
 
     private void showLikeAnimation() {
